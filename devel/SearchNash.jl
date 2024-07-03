@@ -1,8 +1,8 @@
 using datfm
 using BlockArrays: Block
 
-function PrepNash(n)
-    SetGame(n)
+function PrepNash(gameInfo,seqIdx)
+    n = gameInfo.n
 
     # Construct variables
     # global fs = [(x, θ) -> x[Block(ii)]'*C[m*(ii-1)+1:m*ii,:]*x for ii in 1:n]
@@ -12,18 +12,19 @@ function PrepNash(n)
     # h̃ = (x, θ) -> [0]
 
     # Constraint as a shared constraint
-    # fs = [(x,θ) -> x[Block(ii)]]
-    # gs = (x,θ) -> [0]
-    # hs = (x,θ) -> [0]
-    # g̃ = (x,θ) -> [0]
-    # h̃ = [(x,θ) -> ConstJ(x,x[Block(ii)],ii) for ii in 1:n] # Need a vector here
-
-    # Assigned constraint
     fs = [(x,θ) -> x[Block(ii)]]
     gs = (x,θ) -> [0]
-    hs = [(x,θ) -> ConstJ(x,x[Block(ii)]) for ii in 1:n] # Need a vector here
+    hs = (x,θ) -> [0]
     g̃ = (x,θ) -> [0]
-    h̃ = (x,θ) -> [0]
+    h̃ = [(x,θ) -> [(x,θ) -> GetConstraint(x,gameInfo.e,n,seq[seqIdx],ii)] for ii in 1:gameInfo.conflictNum] # Need a vector here
+
+    println(n)
+    println(h̃)
+    println("=====")
+    println(fs)
+    println("******")
+    println(gameInfo.conflictNum)
+    println(gameInfo)
 
     global problem = ParametricGame(
         objectives = fs,
@@ -36,7 +37,7 @@ function PrepNash(n)
         equality_dimensions = fill(1, n),
         inequality_dimensions = fill(1, n), # Included if we have control range constraint
         shared_equality_dimension = 1,
-        shared_inequality_dimension = 1, # Included if we have control output contraint
+        shared_inequality_dimension = gameInfo.conflictNum, # Included if we have control output contraint
     )
 
     return (; problem, C, m, n)
@@ -95,16 +96,9 @@ function SolveNash(problem,C,m,n,isRndGuess)
 end
 
 function SearchNash(r,n,λ,isRndGuess,Δ)
-    println("Begin Nash Search for m=$(2^r) and n=$n case.")
-    (; problem, C, m, n) = PrepNash(r,n,λ)
+    gameInfo = SetGame(n)
+    (; problem, C, m, n) = PrepNash(gameInfo,1) # Add seq index
     (; primals, score, varsize, solverTime, status) = SolveNash(problem, C, m, n, isRndGuess)
-
-    jointPrimal = SwitchIndtoJoint(primals,m,n)
-    fairScore = EvalFairness(jointPrimal,C,m,n,Δ)
-    giniScore = EvalGini(jointPrimal,C,m,n,Δ)
-    avgDelayScore = EvalAverageDelay(jointPrimal,C,m,n)
-
-    println(round.(primals[1],digits=4))
     
-    (; primals, fairScore, giniScore, avgDelayScore, varsize, solverTime)
+    (; primals)
 end 
