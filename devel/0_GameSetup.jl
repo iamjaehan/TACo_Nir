@@ -5,100 +5,43 @@ using BlockArrays
 using Combinatorics
 using Statistics
 
-function SetC(r,n,λ)
-    # Parameter setting
-    # r Number of runways
-    # l Number of sequencing legs
-    # d Number of departure terminals
-    dF = 5 # Delay factor
-    eF = dF*1000 # Hazard factor
-    sF = dF # All stop factor
-
-    # Number of actions and players
-    n = n # number of players = l+d
-    m = 2^r # number of actions
-
-    # Action set - DON'T TOUCH this
-    primeAction = "['G','S']"
-    stringUnit = (primeAction*",")^(r-1)*primeAction
-    stringSum = "vec(collect(Iterators.product("*stringUnit*")))"
-    global actionSet = eval(Meta.parse(stringSum))
-
-    primeNum = "[1,0]"
-    numUnit = (primeNum*",")^(r-1)*primeNum
-    numSum = "vec(collect(Iterators.product("*numUnit*")))"
-    global numActionSet = collect.(eval(Meta.parse(numSum)))
-
-    # Check validity
-    if (length(actionSet)!=m)
-        println("WARNING::ActionSet Fault")
+function GenSeqSeed(n)
+    if n>=10
+        println("[Warning] n too big. n! is a dangerous thing.")
     end
-
-    # Construct cost matrix C
-    C = BlockArray(zeros(n*m,n*m),vec(m*ones(Int8,(n,1))),vec(m*ones(Int8,(n,1))))
-    for i in 1:n
-        for j in 1:n
-            # Construct local C
-            C_local = zeros(m,m)
-            if i != j
-                for ii in 1:m
-                    for jj in 1:m
-                        # Compare action by actions
-                        cost = 0
-                        for rr in 1:r
-                            myAction = actionSet[ii][rr]
-                            opAction = actionSet[jj][rr]
-                            if (myAction == 'G')
-                                if (myAction == opAction)
-                                    cost += eF * λ[i]
-                                else
-                                    cost += 0
-                                end
-                            elseif (myAction == 'S')
-                                if (myAction == opAction)
-                                    cost += sF * λ[i]
-                                else
-                                    cost += dF * λ[i]
-                                end
-                            end
-                        end
-                        C_local[ii,jj] = cost
-                    end
-                end
-            end
-            C[Block(i,j)] = C_local
-        end
-    end
-    return C
+    return collect(permutations(collect(1:n)))
 end
 
-# Construct cost matrix _ Sample case
-# C12 = -[4 1; 5 0]
-# C12 = [10 0; 5 1]
-# C21 = C12'
-# C = BlockArray([C12 C21],[2],[2,2])
-# C11 = zeros(2,2)
-# C22 = zeros(2,2)
-# C12 = -[3 2; 5 0]
-# C21 = C12
-# C = BlockArray([C11 C12; C21 C22],[2,2],[2,2])
+function GetCombination(n)
+    return collect(combinations(n))
+end
+
+function SetGame(n, wm, wp)
+    D = 10
+    L = 30
+    e = rand(n)*30 # Initial ETA for the players
+    seqList = GenSeqSeed(n)
+end
+
+function EvalJ(u)
+end
 
 # Define functions
-function generateAseq(i,ai,m,n)
-    primeChoice = "1:$m"
-    stringUnit = ""
-    for j in 1:n
-        if j == i
-            stringUnit = stringUnit*"$ai"*","
-        else
-            stringUnit = stringUnit*primeChoice*","
-        end
-    end
-    stringUnit = chop(stringUnit)
-    stringSum = "vec(collect(Iterators.product("*stringUnit*")))"
-    aSet = eval(Meta.parse(stringSum))
-    return aSet
-end
+# function generateAseq(i,ai,m,n)
+#     primeChoice = "1:$m"
+#     stringUnit = ""
+#     for j in 1:n
+#         if j == i
+#             stringUnit = stringUnit*"$ai"*","
+#         else
+#             stringUnit = stringUnit*primeChoice*","
+#         end
+#     end
+#     stringUnit = chop(stringUnit)
+#     stringSum = "vec(collect(Iterators.product("*stringUnit*")))"
+#     aSet = eval(Meta.parse(stringSum))
+#     return aSet
+# end
 
 function CalcPhi(i,ai,_ai,x,m,n,C)
     aSeq = generateAseq(i,ai,m,n) # (i,ai)

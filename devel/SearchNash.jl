@@ -1,31 +1,42 @@
 using datfm
 using BlockArrays: Block
 
-function PrepNash(r,n,λ)
-    C = SetC(r,n,λ)
-
-    n = blocksize(C)[1] # Number of vehicles
-    m = size(C[Block(1)])[1] # Number of actions
+function PrepNash(n)
+    SetGame(n)
 
     # Construct variables
-    fs = [(x, θ) -> x[Block(ii)]'*C[m*(ii-1)+1:m*ii,:]*x for ii in 1:n]
-    gs = [(x, θ) -> [sum(x[Block(ii)]) - 1] for ii in 1:n]
-    hs = [(x, θ) -> x[Block(ii)] for ii in 1:n]
-    g̃ = (x, θ) -> [0]
-    h̃ = (x, θ) -> [0]
+    # global fs = [(x, θ) -> x[Block(ii)]'*C[m*(ii-1)+1:m*ii,:]*x for ii in 1:n]
+    # gs = [(x, θ) -> [sum(x[Block(ii)]) - 1] for ii in 1:n]
+    # hs = [(x, θ) -> x[Block(ii)] for ii in 1:n]
+    # g̃ = (x, θ) -> [0]
+    # h̃ = (x, θ) -> [0]
 
-    problem = ParametricGame(
+    # Constraint as a shared constraint
+    # fs = [(x,θ) -> x[Block(ii)]]
+    # gs = (x,θ) -> [0]
+    # hs = (x,θ) -> [0]
+    # g̃ = (x,θ) -> [0]
+    # h̃ = [(x,θ) -> ConstJ(x,x[Block(ii)],ii) for ii in 1:n] # Need a vector here
+
+    # Assigned constraint
+    fs = [(x,θ) -> x[Block(ii)]]
+    gs = (x,θ) -> [0]
+    hs = [(x,θ) -> ConstJ(x,x[Block(ii)]) for ii in 1:n] # Need a vector here
+    g̃ = (x,θ) -> [0]
+    h̃ = (x,θ) -> [0]
+
+    global problem = ParametricGame(
         objectives = fs,
         equality_constraints = gs,
         inequality_constraints = hs,
         shared_equality_constraint = g̃,
         shared_inequality_constraint = h̃,
         parameter_dimension = 1,
-        primal_dimensions = fill(m, n),
+        primal_dimensions = fill(1, n),
         equality_dimensions = fill(1, n),
-        inequality_dimensions = fill(m, n),
+        inequality_dimensions = fill(1, n), # Included if we have control range constraint
         shared_equality_dimension = 1,
-        shared_inequality_dimension = 1,
+        shared_inequality_dimension = 1, # Included if we have control output contraint
     )
 
     return (; problem, C, m, n)
@@ -92,6 +103,8 @@ function SearchNash(r,n,λ,isRndGuess,Δ)
     fairScore = EvalFairness(jointPrimal,C,m,n,Δ)
     giniScore = EvalGini(jointPrimal,C,m,n,Δ)
     avgDelayScore = EvalAverageDelay(jointPrimal,C,m,n)
+
+    println(round.(primals[1],digits=4))
     
     (; primals, fairScore, giniScore, avgDelayScore, varsize, solverTime)
 end 
