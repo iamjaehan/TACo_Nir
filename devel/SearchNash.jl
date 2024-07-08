@@ -5,7 +5,7 @@ function PrepNash(gameInfo,seqIdx)
     n = gameInfo.n
     e = gameInfo.e
     D = gameInfo.D
-    seq = gameInfo.seqList[1]
+    seq = gameInfo.seqList[seqIdx]
 
     # Construct variables
     # global fs = [(x, θ) -> x[Block(ii)]'*C[m*(ii-1)+1:m*ii,:]*x for ii in 1:n]
@@ -71,10 +71,23 @@ function SolveNash(problem,n)
     (; primals, varsize = size(primals)[1], solverTime, status)
 end
 
-function SearchNash(n)
-    global gameInfo = SetGame(n)
-    (; problem, n) = PrepNash(gameInfo,1) # Add seq index
+function SearchNash(gameInfo, seqIdx)
+    (; problem, n) = PrepNash(gameInfo, seqIdx) # Add seq index
     (; primals, varsize, solverTime, status) = SolveNash(problem, n)
     
     (; primals)
-end 
+end
+
+function SearchAllNash(n)
+    global gameInfo = SetGame(n)
+    primalsList = Vector{Any}(undef,0)
+    seqList = gameInfo.seqList
+    seqNum = length(seqList)
+    for i in 1:seqNum
+        out = SearchNash(gameInfo,i)
+        primals = out.primals
+        primalsList = vcat(primalsList, [primals])
+        println("Searched $(i) out of $(seqNum) equilibria.")
+    end
+    (; primalsList)
+end
