@@ -61,20 +61,27 @@ end
 # end
 
 function GetConstraint(x,e,n,D,seq,ii) # for player ii
-    if ii == 0
-        return 0
-    end
+    # constraintSet = Vector{Any}(undef,0)
+    # pairList = GetCombination(n)
+    # for pairs in pairList
+    #     distance = abs(e[pairs[1]]-e[pairs[2]])
+    #     if distance < D # This pair is in conflict
+    #         d = D - distance
+    #         if seq[pairs[1]] <= seq[pairs[2]] # 1 is ahead
+    #             constraintSet = vcat(constraintSet, [x[pairs[1]] - x[pairs[2]] - d])
+    #         else # 2 is ahead
+    #             constraintSet = vcat(constraintSet, [x[pairs[2]] - x[pairs[1]] - d])
+    #         end
+    #     end
+    # end
+    # return constraintSet[ii]
     constraintSet = Vector{Any}(undef,0)
     pairList = GetCombination(n)
     for pairs in pairList
-        distance = abs(e[pairs[1]]-e[pairs[2]])
-        if distance < D # This pair is in conflict
-            d = D - distance
-            if seq[pairs[1]] <= seq[pairs[2]] # 1 is ahead
-                constraintSet = vcat(constraintSet, [x[pairs[1]] - x[pairs[2]] - d])
-            else # 2 is ahead
-                constraintSet = vcat(constraintSet, [x[pairs[2]] - x[pairs[1]] - d])
-            end
+        if seq[pairs[1]] <= seq[pairs[2]] #1 is ahead
+            constraintSet = vcat(constraintSet, [e[pairs[1]] + x[pairs[1]]] - [e[pairs[2]] + x[pairs[2]]] - [D])
+        else
+            constraintSet = vcat(constraintSet, -[e[pairs[1]] + x[pairs[1]]] + [e[pairs[2]] + x[pairs[2]]] - [D])
         end
     end
     return constraintSet[ii]

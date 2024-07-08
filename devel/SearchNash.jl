@@ -19,7 +19,7 @@ function PrepNash(gameInfo,seqIdx)
     gs = [(x,θ) -> [0] for ii in 1:n]
     hs = [(x,θ) -> [0] for ii in 1:n]
     g̃ = (x,θ) -> [0]
-    h̃ = [(x,θ) -> GetConstraint(x,e,n,D,seq,ii) for ii in 1:gameInfo.conflictNum] # Need a vector here
+    h̃ = [(x,θ) -> GetConstraint(x,e,n,D,seq,ii) for ii in 1:length(GetCombination(n))] # Need a vector here
 
     global problem = ParametricGame(
         objectives = fs,
@@ -32,7 +32,7 @@ function PrepNash(gameInfo,seqIdx)
         equality_dimensions = fill(1, n),
         inequality_dimensions = fill(1, n), # Included if we have control range constraint
         shared_equality_dimension = 1,
-        shared_inequality_dimension = gameInfo.conflictNum, # Included if we have control output contraint
+        shared_inequality_dimension = length(GetCombination(n)), # Included if we have control output contraint
     )
 
     return (; problem, n)
@@ -71,8 +71,8 @@ function SolveNash(problem,n)
     (; primals, varsize = size(primals)[1], solverTime, status)
 end
 
-function SearchNash(r,n,λ,isRndGuess,Δ)
-    gameInfo = SetGame(n)
+function SearchNash(n)
+    global gameInfo = SetGame(n)
     (; problem, n) = PrepNash(gameInfo,1) # Add seq index
     (; primals, varsize, solverTime, status) = SolveNash(problem, n)
     
