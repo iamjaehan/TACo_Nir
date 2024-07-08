@@ -60,7 +60,7 @@ end
 #     end
 # end
 
-function GetConstraint(x,e,n,seq,ii) # for player ii
+function GetConstraint(x,e,n,D,seq,ii) # for player ii
     if ii == 0
         return 0
     end

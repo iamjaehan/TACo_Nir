@@ -3,6 +3,9 @@ using BlockArrays: Block
 
 function PrepNash(gameInfo,seqIdx)
     n = gameInfo.n
+    e = gameInfo.e
+    D = gameInfo.D
+    seq = gameInfo.seqList[1]
 
     # Construct variables
     # global fs = [(x, θ) -> x[Block(ii)]'*C[m*(ii-1)+1:m*ii,:]*x for ii in 1:n]
@@ -12,19 +15,11 @@ function PrepNash(gameInfo,seqIdx)
     # h̃ = (x, θ) -> [0]
 
     # Constraint as a shared constraint
-    fs = [(x,θ) -> x[Block(ii)]]
-    gs = (x,θ) -> [0]
-    hs = (x,θ) -> [0]
+    fs = [(x,θ) -> x[Block(ii)]'*x[Block(ii)] for ii in 1:n]
+    gs = [(x,θ) -> [0] for ii in 1:n]
+    hs = [(x,θ) -> [0] for ii in 1:n]
     g̃ = (x,θ) -> [0]
-    h̃ = [(x,θ) -> [(x,θ) -> GetConstraint(x,gameInfo.e,n,seq[seqIdx],ii)] for ii in 1:gameInfo.conflictNum] # Need a vector here
-
-    println(n)
-    println(h̃)
-    println("=====")
-    println(fs)
-    println("******")
-    println(gameInfo.conflictNum)
-    println(gameInfo)
+    h̃ = [(x,θ) -> GetConstraint(x,e,n,D,seq,ii) for ii in 1:gameInfo.conflictNum] # Need a vector here
 
     global problem = ParametricGame(
         objectives = fs,
@@ -40,24 +35,12 @@ function PrepNash(gameInfo,seqIdx)
         shared_inequality_dimension = gameInfo.conflictNum, # Included if we have control output contraint
     )
 
-    return (; problem, C, m, n)
+    return (; problem, n)
 end
 
-function SolveNash(problem,C,m,n,isRndGuess)
+function SolveNash(problem,n)
     # Randomize seed?
-    if isRndGuess
-        # initial_guess = rand(total_dim(problem))
-        # PNE guess
-        # initial_guess = zeros(total_dim(problem))
-        # initial_guess[n*m+n+1:end-2] .= rand(1)*50
-        # rndIdx = Vector{Int64}(undef,n)
-        # for i in 1:n
-        #     rndIdx[i] = argmax(rand(m))
-        # end
-        # for i in 1:n
-        #     initial_guess[rndIdx[i]+(i-1)*m] = 1
-        #     initial_guess[rndIdx[i]+(i-1)*m + n*m+n] = 0
-        # end
+    if false
         # PNE guess - Smart duals
         initial_guess = zeros(total_dim(problem))
         rndIdx = Vector{Int64}(undef,n)
@@ -78,13 +61,6 @@ function SolveNash(problem,C,m,n,isRndGuess)
             initial_guess[n*m+n + (i-1)*m+1 : n*m+n + i*m] = primalSum - ones(m)*equalityMultiplier[i]
         end
         initial_guess[n*m+1:n*m+n] = equalityMultiplier
-        # MNE guess
-        # initial_guess = zeros(total_dim(problem))
-        # for i = 1:n
-        #     localGuess = rand(m)
-        #     localGuess = localGuess/sum(localGuess)
-        #     initial_guess[1+(i-1)*m:i*m] = localGuess
-        # end
     else
         initial_guess = zeros(total_dim(problem))
     end
@@ -92,13 +68,13 @@ function SolveNash(problem,C,m,n,isRndGuess)
     # Solve!
     solverTime = @elapsed (; primals, variables, status, info) = solve(problem, [0], initial_guess = initial_guess)
 
-    (; primals, score = CalcJNash(C,primals,m,n), varsize = size(primals)[1]*m, solverTime, status)
+    (; primals, varsize = size(primals)[1], solverTime, status)
 end
 
 function SearchNash(r,n,λ,isRndGuess,Δ)
     gameInfo = SetGame(n)
-    (; problem, C, m, n) = PrepNash(gameInfo,1) # Add seq index
-    (; primals, score, varsize, solverTime, status) = SolveNash(problem, C, m, n, isRndGuess)
+    (; problem, n) = PrepNash(gameInfo,1) # Add seq index
+    (; primals, varsize, solverTime, status) = SolveNash(problem, n)
     
     (; primals)
 end 

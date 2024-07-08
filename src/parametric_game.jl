@@ -114,10 +114,12 @@ function ParametricGame(;
     gs = map(g -> g(x, θ), equality_constraints)
     hs = map(h -> h(x, θ), inequality_constraints)
     g̃ = shared_equality_constraint(x, θ)
-    h̃ = shared_inequality_constraint(x, θ)
+    println("Check!")
+    h̃ = map(h̃s -> h̃s(x, θ), shared_inequality_constraint)
 
     # Build Lagrangians for all players.
     Ls = map(zip(1:N, fs, gs, hs)) do (ii, f, g, h)
+        println("Check!!")
         f - λ[Block(ii)]' * g - μ[Block(ii)]' * h - λ̃' * g̃ - μ̃' * h̃
     end
 
