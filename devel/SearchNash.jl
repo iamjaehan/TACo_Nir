@@ -10,7 +10,7 @@ function PrepNash(gameInfo,seqIdx)
     combNum = length(GetCombination(n))
 
     # Constraint as a shared constraint
-    fs = [(x,θ) -> ψ[ii]^2*x[Block(ii)]'*x[Block(ii)] for ii in 1:n]
+    fs = [(x,θ) -> CalcJ(x,ψ,ii) for ii in 1:n]
     gs = [(x,θ) -> [0] for ii in 1:n]
     hs = [(x,θ) -> [0] for ii in 1:n]
     g̃ = (x,θ) -> [0]
@@ -86,5 +86,5 @@ function SearchAllNash(n)
         primalsList = vcat(primalsList, [primals])
         println("Searched $(i) out of $(seqNum) equilibria.")
     end
-    (; primalsList)
+    (; primalsList, gameInfo)
 end

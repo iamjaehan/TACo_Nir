@@ -51,7 +51,16 @@ function GetConstraint(x,e,n,D,seq,ii) # for player ii
     return constraintSet[ii]
 end
 
-function EvalJ(u, wm, wp)
+function EvalEffort(x,ψ)
+    return ψ*x'*x
+end
+
+function EvalFairness(x, ψ, ii)
+    return 0
+end
+
+function CalcJ(x, ψ, ii)
+    return EvalEffort(x, ψ[ii]) + EvalFairness(x, ψ, ii)
 end
 
 # Define functions
