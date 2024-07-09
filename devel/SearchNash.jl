@@ -7,13 +7,6 @@ function PrepNash(gameInfo,seqIdx)
     D = gameInfo.D
     seq = gameInfo.seqList[seqIdx]
 
-    # Construct variables
-    # global fs = [(x, θ) -> x[Block(ii)]'*C[m*(ii-1)+1:m*ii,:]*x for ii in 1:n]
-    # gs = [(x, θ) -> [sum(x[Block(ii)]) - 1] for ii in 1:n]
-    # hs = [(x, θ) -> x[Block(ii)] for ii in 1:n]
-    # g̃ = (x, θ) -> [0]
-    # h̃ = (x, θ) -> [0]
-
     # Constraint as a shared constraint
     fs = [(x,θ) -> x[Block(ii)]'*x[Block(ii)] for ii in 1:n]
     gs = [(x,θ) -> [0] for ii in 1:n]
