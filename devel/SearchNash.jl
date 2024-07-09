@@ -5,14 +5,16 @@ function PrepNash(gameInfo,seqIdx)
     n = gameInfo.n
     e = gameInfo.e
     D = gameInfo.D
+    ψ = gameInfo.ψ
     seq = gameInfo.seqList[seqIdx]
+    combNum = length(GetCombination(n))
 
     # Constraint as a shared constraint
-    fs = [(x,θ) -> x[Block(ii)]'*x[Block(ii)] for ii in 1:n]
+    fs = [(x,θ) -> ψ[ii]^2*x[Block(ii)]'*x[Block(ii)] for ii in 1:n]
     gs = [(x,θ) -> [0] for ii in 1:n]
     hs = [(x,θ) -> [0] for ii in 1:n]
     g̃ = (x,θ) -> [0]
-    h̃ = [(x,θ) -> GetConstraint(x,e,n,D,seq,ii) for ii in 1:length(GetCombination(n))] # Need a vector here
+    h̃ = [(x,θ) -> GetConstraint(x,e,n,D,seq,ii) for ii in 1:combNum] # Need a vector here
 
     global problem = ParametricGame(
         objectives = fs,
@@ -25,7 +27,7 @@ function PrepNash(gameInfo,seqIdx)
         equality_dimensions = fill(1, n),
         inequality_dimensions = fill(1, n), # Included if we have control range constraint
         shared_equality_dimension = 1,
-        shared_inequality_dimension = length(GetCombination(n)), # Included if we have control output contraint
+        shared_inequality_dimension = combNum, # Included if we have control output contraint
     )
 
     return (; problem, n)
@@ -73,6 +75,8 @@ end
 
 function SearchAllNash(n)
     global gameInfo = SetGame(n)
+    println("GameInfo: n = $(n), ψ = $(gameInfo.ψ)")
+    println("===============")
     primalsList = Vector{Any}(undef,0)
     seqList = gameInfo.seqList
     seqNum = length(seqList)

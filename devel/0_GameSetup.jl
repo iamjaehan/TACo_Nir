@@ -24,6 +24,7 @@ function SetGame(n)
     D = 10
     L = 30
     e = rand(n)*30 # Initial ETA for the players
+    ψ = rand(n)*10
 
     conflictNum = 0
     seqList = GenSeqSeed(n)
@@ -34,7 +35,7 @@ function SetGame(n)
         end
     end
 
-    (; D, L, n, e, seqList, conflictNum)
+    (; D, L, n, e, ψ, seqList, conflictNum)
 end
 
 function GetConstraint(x,e,n,D,seq,ii) # for player ii
