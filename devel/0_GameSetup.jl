@@ -25,8 +25,6 @@ function SetGame(n)
     L = 30
     e = rand(n)*30 # Initial ETA for the players
 
-    # pairList = GetPermPair(n)
-    # isConflict = Vector{Bool}(undef,length(pairList))
     conflictNum = 0
     seqList = GenSeqSeed(n)
     pairList = GetCombination(n)
@@ -39,42 +37,7 @@ function SetGame(n)
     (; D, L, n, e, seqList, conflictNum)
 end
 
-# function GetConstraint(x,e,ii,n,seq) # for player ii
-#     egoU = x[ii]
-#     constraintSet = Vector{Any}(undef,0)
-#     for pairs in generateAseq(1,ii,n,2)
-#         distance = abs(e[ii]-e[pairs[2]])
-#         if distance < D
-#             d = D - distance
-#             if seq[ii] <= seq[pairs[2]] # ii comes first
-#                 constraintSet = vcat(constraintSet, [egoU - x[pairs[2]] - d])
-#             else
-#                 constraintSet = vcat(constraintSet, [x[pairs[2]] - egoU - d])
-#             end
-#         end
-#     end
-#     if isempty(constraintSet)
-#         return [0]
-#     else
-#         return constraintSet
-#     end
-# end
-
 function GetConstraint(x,e,n,D,seq,ii) # for player ii
-    # constraintSet = Vector{Any}(undef,0)
-    # pairList = GetCombination(n)
-    # for pairs in pairList
-    #     distance = abs(e[pairs[1]]-e[pairs[2]])
-    #     if distance < D # This pair is in conflict
-    #         d = D - distance
-    #         if seq[pairs[1]] <= seq[pairs[2]] # 1 is ahead
-    #             constraintSet = vcat(constraintSet, [x[pairs[1]] - x[pairs[2]] - d])
-    #         else # 2 is ahead
-    #             constraintSet = vcat(constraintSet, [x[pairs[2]] - x[pairs[1]] - d])
-    #         end
-    #     end
-    # end
-    # return constraintSet[ii]
     constraintSet = Vector{Any}(undef,0)
     pairList = GetCombination(n)
     for pairs in pairList
