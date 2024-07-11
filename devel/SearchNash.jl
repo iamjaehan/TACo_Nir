@@ -62,8 +62,15 @@ function SolveNash(problem,n)
 
     # Solve!
     solverTime = @elapsed (; primals, variables, status, info) = solve(problem, [0], initial_guess = initial_guess)
+    primals_out = Vector{Any}(undef,0)
 
-    (; primals, varsize = size(primals)[1], solverTime, status)
+    for i in 1:length(primals)
+        primals_out = vcat(primals_out,primals[i][1])
+    end
+
+    primals = primals_out
+
+    (; primals, varsize = size(primals_out), solverTime, status)
 end
 
 function SearchNash(gameInfo, seqIdx)

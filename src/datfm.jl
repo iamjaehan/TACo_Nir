@@ -11,10 +11,10 @@ export ParametricOptimizationProblem, solve, total_dim
 include("parametric_optimization_problem.jl")
 export ParametricGame
 include("../devel/0_GameSetup.jl")
-export SetGame, CalcJ
+export SetGame, CalcJ, measureDist
 include("../devel/SearchNash.jl")
 export SearchNash, SearchAllNash
 include("../devel/World.jl")
-export ChoosePreference, RunScenario
+export ChoosePreference, RunScenario, RunSim
 
 end # module datfm

@@ -79,3 +79,8 @@ function generateAseq(i,ai,m,n)
     aSet = eval(Meta.parse(stringSum))
     return aSet
 end
+
+function measureDist(N1,N2)
+    x = N1-N2
+    return sqrt(x'*x)
+end
