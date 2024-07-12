@@ -24,6 +24,7 @@ function SetGame(n)
     D = 10
     L = 30
     e = rand(n)*30 # Initial ETA for the players
+    eInit = deepcopy(e)
     ψ = rand(n)*10
 
     conflictNum = 0
@@ -35,7 +36,7 @@ function SetGame(n)
         end
     end
 
-    (; D, L, n, e, ψ, seqList, conflictNum)
+    (; D, L, n, e, ψ, seqList, conflictNum, eInit)
 end
 
 function UpdateGame(gameInfo, e)

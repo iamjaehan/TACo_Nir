@@ -35,8 +35,8 @@ end
 
 if run(2) == 1
 
-out = load("eHistory_iterative.mat");
-% out = load("eHistory_single.mat");
+% out = load("eHistory_iterative.mat");
+out = load("eHistory_single.mat");
 out = out.eHistory;
 dataLen = length(out);
 n = length(out{1});
@@ -52,6 +52,7 @@ clf
 for i = 1:n
     plot(data(:,i),-(1:dataLen),'o:')
     hold on
+    text(data(1,i),0.1,"#"+num2str(i))
 end
 grid on
 
