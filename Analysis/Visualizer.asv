@@ -31,28 +31,10 @@ yticklabels({'Equilibrium','Original ETA (e_i)'})
 
 end
 
-%%%%%%%
-
 if run(2) == 1
 
-out = load("eHistory_iterative.mat");
-% out = load("eHistory_single.mat");
+out = load("eHistory.mat");
 out = out.eHistory;
-dataLen = length(out);
-n = length(out{1});
-data = zeros(dataLen,n);
-
-for i = 1:dataLen
-    data(i,:) = out{i};
-end
-
-
-figure(21)
-clf
-for i = 1:n
-    plot(data(:,i),-(1:dataLen),'o:')
-    hold on
-end
-grid on
+fo
 
 end
