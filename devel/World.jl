@@ -53,11 +53,15 @@ end
 
 function RunSim(n)
     dt = 1 #ADS-B update rate
-    simT = 30
+    simT = 60
     maxDv = 1 * dt
 
     simStep = simT/dt
-    out = SearchAllNash(n)
+
+    gameInfo = SetGame(n)
+    println("GameInfo: n = $(n), ψ = $(gameInfo.ψ)")
+    println("===============")
+    out = SearchAllNash(gameInfo)
     NashSet = out.primalsList
     NashNum = length(NashSet)
     gameInfo = out.gameInfo
@@ -82,11 +86,60 @@ function RunSim(n)
         for j in 1:NashNum
             distList = vcat(distList, measureDist(e, NashSet[j]))
         end
-        # println(round.(distList,digits=2))
+        println(round.(e,digits=2))
+        println(round.(distList,digits=2))
         println(sortperm(distList))
+        println("============")
     end
 
     println("Individual Preference: $(ChoosePreference(NashSet, gameInfo))")
     println(sortperm(SystemPreference(NashSet, gameInfo)))
     println("System Preference: $(SystemPreference(NashSet, gameInfo))")
 end
+
+# function RunSim(n)
+#     dt = 1 #ADS-B update rate
+#     simT = 60
+#     maxDv = 1 * dt
+
+#     simStep = simT/dt
+
+#     # Initial setting
+#     gameInfo = SetGame(n)
+#     e = gameInfo.e
+#     eInit = e
+#     eHistory = Vector{Any}(undef,0)
+#     eHistory = vcat(eHistory, eInit)
+
+#     # Run scenario
+#     for t in 1:simStep
+#         # Calculate Nash equilibrium
+#         gameInfo = UpdateGame(gameInfo, e)
+#         out = SearchAllNash(gameInfo)
+#         NashSet = out.primalsList
+#         NashNum = length(NashSet)
+        
+#         # Select their preference
+#         choiceList = ChoosePreference(NashSet, gameInfo)
+
+#         # Action for dt
+#         for i in 1:n
+#             e[i] = EvolveDynamics(e[i], NashSet[choiceList[i]][i], maxDv, dt)
+#         end
+#         eHistory = vcat(eHistory,e)
+
+#         # Infer
+#         distList = Vector{Any}(undef,0)
+#         for j in 1:NashNum
+#             distList = vcat(distList, measureDist(e, NashSet[j]))
+#         end
+        
+#         println(round.(e,digits=2))
+#         println(round.(distList,digits=2))
+#         println(sortperm(distList))
+#         println("Individual Preference: $(ChoosePreference(NashSet, gameInfo))")
+#         println("System Preference: $(sortperm(SystemPreference(NashSet, gameInfo)))")
+#         println("========")
+#     end
+#     # println(sortperm(SystemPreference(NashSet, gameInfo)))
+# end

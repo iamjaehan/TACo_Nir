@@ -38,6 +38,10 @@ function SetGame(n)
     (; D, L, n, e, ψ, seqList, conflictNum)
 end
 
+function UpdateGame(gameInfo, e)
+    (; gameInfo.D, gameInfo.L, gameInfo.n, e, gameInfo.ψ, gameInfo.seqList, gameInfo.conflictNum)
+end
+
 function GetConstraint(x,e,n,D,seq,ii) # for player ii
     constraintSet = Vector{Any}(undef,0)
     pairList = GetCombination(n)

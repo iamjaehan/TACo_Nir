@@ -80,10 +80,7 @@ function SearchNash(gameInfo, seqIdx)
     (; primals)
 end
 
-function SearchAllNash(n)
-    global gameInfo = SetGame(n)
-    println("GameInfo: n = $(n), ψ = $(gameInfo.ψ)")
-    println("===============")
+function SearchAllNash(gameInfo)
     primalsList = Vector{Any}(undef,0)
     seqList = gameInfo.seqList
     seqNum = length(seqList)
@@ -91,7 +88,7 @@ function SearchAllNash(n)
         out = SearchNash(gameInfo,i)
         primals = out.primals
         primalsList = vcat(primalsList, [primals])
-        println("Searched $(i) out of $(seqNum) equilibria.")
+        # println("Searched $(i) out of $(seqNum) equilibria.")
     end
     (; primalsList, gameInfo)
 end
