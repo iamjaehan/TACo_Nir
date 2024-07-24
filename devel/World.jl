@@ -41,9 +41,18 @@ function RunScenario(n)
     return choiceList
 end
 
-function EvolveDynamics(e, ref, maxDv, dt)
-    updateRate = 0.2
-    return e + updateRate*(ref - e)*dt
+function EvolveDynamics(e, v, ref, maxDv, dt)
+    # updateRate = 0.2
+    # return e + updateRate*(ref - e)*dt
+
+    error = (ref - e)
+    m = 10
+    c = 1
+    k = 0.3
+    dd = (-c*v-k*error)/m + error/m
+    v = v + dd*dt
+    e = e + v*dt
+    return e
     
     # error = ref - e
     # if error != 0
@@ -56,7 +65,7 @@ end
 
 function RunSim(n)
     dt = 1 #ADS-B update rate
-    simT = 120
+    simT = 60
     maxDv = 1 * dt
 
     simStep = simT/dt
@@ -76,6 +85,7 @@ function RunSim(n)
     eHistory = Vector{Any}(undef,0)
     etemp = deepcopy(eInit)
     eHistory = vcat(eHistory, [etemp])
+    v = zeros(n)
 
     # Run scenario
     for t in 1:simStep
@@ -84,7 +94,7 @@ function RunSim(n)
 
         # Action for dt
         for i in 1:n
-            e[i] = EvolveDynamics(e[i], eInit[i] + NashSet[choiceList[i]][i], maxDv, dt)
+            e[i] = EvolveDynamics(e[i], v[i], eInit[i] + NashSet[choiceList[i]][i], maxDv, dt)
         end
         etemp = deepcopy(e)
         eHistory = vcat(eHistory,[etemp])
@@ -104,7 +114,7 @@ function RunSim(n)
     # println("System Preference: $(SystemPreference(NashSet, gameInfo))")
     # println(eHistory)
     
-    matwrite("Analysis/eHistory_single.mat",Dict(
+    matwrite("Analysis/eHistory_single2.mat",Dict(
         "eHistory" => eHistory
     ); version="v7.4")
 end
