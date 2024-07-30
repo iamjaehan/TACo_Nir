@@ -4,6 +4,7 @@ using datfm
 using BlockArrays
 using Combinatorics
 using Statistics
+using Random
 
 function GenSeqSeed(n)
     if n>=10
@@ -20,12 +21,16 @@ function GetPermPair(n)
     return collect(permutations(collect(1:n,2)))
 end
 
-function SetGame(n)
+function SetGame(n, seed)
+    rng = rand(MersenneTwister(seed),2)
+    rng1 = MersenneTwister(convert(Int64,ceil(rng[1]*1000)))
+    rng2 = MersenneTwister(convert(Int64,ceil(rng[2]*1000)))
+
     D = 10
-    L = 30
-    e = rand(n)*30 # Initial ETA for the players
+    L = 10
+    e = rand(rng1,n)*L # Initial ETA for the players
     eInit = deepcopy(e)
-    ψ = rand(n)*10
+    ψ = rand(rng2,n)*10
 
     conflictNum = 0
     seqList = GenSeqSeed(n)
@@ -85,7 +90,46 @@ function generateAseq(i,ai,m,n)
     return aSet
 end
 
-function measureDist(N1,N2)
+function measureOverallDist(N1,N2)
     x = N1-N2
     return sqrt(x'*x)
+end
+
+function measureDist(N1,N2,i)
+    x = N1[i] - N2[i]
+    return sqrt(x'*x)
+end
+
+function EvolveDynamics(e, v, ref, maxDv, dt)
+    # updateRate = 0.2
+    # return e + updateRate*(ref - e)*dt
+
+    m = 10
+    c = 2
+    k = 0.2
+    error = (ref - e)
+    dd = (-c*v + k*error)/m
+    v = v + dd*dt
+    # println("[Dyn] Damping ratio: $(round(c/(2*sqrt(m*k)),digits=2))")
+    return e + v*dt, v
+    
+    # error = ref - e
+    # if error != 0
+    #     out = e + min(maxDv,abs(error)) * error / abs(error)
+    # else
+    #     out =  e
+    # end
+    # return out
+end
+
+function Roulette(x)
+    x = x./sum(x) # Normalize
+    x_cum = cumsum(x) .- x[1]
+    fix = rand(1)[1]
+    for i in 1:length(x)
+        if fix >= x_cum[i]
+            return i
+        end
+    end
+    return nothing
 end

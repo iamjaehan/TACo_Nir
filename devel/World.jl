@@ -8,11 +8,11 @@ function ChoosePreference(nashList, gameInfo) # Selection method
 
     choiceList = Vector{Any}(undef,0)
     for i in 1:n
-        # candidateList = Vector{Any}(undef,0)
-        # for j in 1:listLen
-        #     candidateList = vcat(candidateList, CalcJ(nashList[j][i],ψ,i))
-        # end
-        # choiceList = vcat(choiceList, findmin(candidateList)[2])
+        candidateList = Vector{Any}(undef,0)
+        for j in 1:listLen
+            candidateList = vcat(candidateList, CalcJ(nashList[j][i],ψ,i))
+        end
+        choiceList = vcat(choiceList, findmin(candidateList)[2])
         choiceList = vcat(choiceList,findmin(SystemPreference(nashList, gameInfo))[2])
     end
 
@@ -41,39 +41,17 @@ function RunScenario(n)
     return choiceList
 end
 
-function EvolveDynamics(e, v, ref, maxDv, dt)
-    # updateRate = 0.2
-    # return e + updateRate*(ref - e)*dt
-
-    error = (ref - e)
-    m = 10
-    c = 1
-    k = 0.3
-    dd = (-c*v-k*error)/m + error/m
-    v = v + dd*dt
-    e = e + v*dt
-    return e
-    
-    # error = ref - e
-    # if error != 0
-    #     out = e + min(maxDv,abs(error)) * error / abs(error)
-    # else
-    #     out =  e
-    # end
-    # return out
-end
-
-function RunSim(n)
+# Single game
+function RunSim(n, termStep, seed)
     dt = 1 #ADS-B update rate
-    simT = 60
+    simT = 80
     maxDv = 1 * dt
 
     simStep = simT/dt
 
-    global gameInfo = SetGame(n)
+    global gameInfo = SetGame(n, seed)
     println("GameInfo: n = $(n), ψ = $(gameInfo.ψ)")
     println("===============")
-    # global gameInfo
 
     out = SearchAllNash(gameInfo)
     NashSet = out.primalsList
@@ -87,39 +65,68 @@ function RunSim(n)
     eHistory = vcat(eHistory, [etemp])
     v = zeros(n)
 
+    global cumDist = zeros(NashNum)
+    # Select their preference
+    global choiceList = ChoosePreference(NashSet, gameInfo)
+
     # Run scenario
     for t in 1:simStep
-        # Select their preference
-        choiceList = ChoosePreference(NashSet, gameInfo)
-
         # Action for dt
         for i in 1:n
-            e[i] = EvolveDynamics(e[i], v[i], eInit[i] + NashSet[choiceList[i]][i], maxDv, dt)
+            e[i], v[i] = EvolveDynamics(e[i], v[i], eInit[i] + NashSet[choiceList[i]][i], maxDv, dt)
         end
         etemp = deepcopy(e)
         eHistory = vcat(eHistory,[etemp])
 
-        # Infer
+        # # Infer (overall)
+        # overallDistList = Vector{Any}(undef,0)
+        # for j in 1:NashNum
+        #     overallDistList = vcat(overallDistList, measureOverallDist(e, NashSet[j]))
+        # end
+        # cumDist = cumDist + overallDistList
+
+        # # Infer (individual)
         distList = Vector{Any}(undef,0)
-        for j in 1:NashNum
-            distList = vcat(distList, measureDist(e, NashSet[j]))
+        for i in 1:n # for individual player
+            indDistList = Vector{Any}(undef,0) # dist to an equi j of player i
+            for j in 1:NashNum # for each equil.
+                indDistList = vcat(indDistList, measureDist(e, NashSet[j], i))
+            end
+            distList = vcat(distList, [indDistList])
         end
+        
+        # # Update decision
+        if t % termStep == 0
+            println(choiceList)
+            println("Update")
+            global choiceList = fill(findmin(cumDist)[2], n)
+            for i = 1:n
+                choiceList[i] = Roulette(map(x->1/x, cumDist))
+            end
+            # choiceList = fill(Roulette(1./cumDist), n)
+            println(choiceList)
+            cumDist = zeros(NashNum)
+        end
+
         # println(round.(e,digits=2))
         # println(round.(distList,digits=2))
-        # println(sortperm(distList))
+        # println(sortperm(overallDistList))
+        # println(round.(overallDistList,digits=2))
+        # println(map(x -> round.(x./sum(x),digits=2), distList))
         # println("============")
     end
+    println(sortperm(cumDist))
     # println("Individual Preference: $(ChoosePreference(NashSet, gameInfo))")
     # println(sortperm(SystemPreference(NashSet, gameInfo)))
     # println("System Preference: $(SystemPreference(NashSet, gameInfo))")
-    # println(eHistory)
     
-    matwrite("Analysis/eHistory_single2.mat",Dict(
+    matwrite("Analysis/eHistory_similarity.mat",Dict(
         "eHistory" => eHistory
     ); version="v7.4")
 end
 
-# function RunSim(n)
+# Iterative gaming
+# function RunSim(n, termStep, seed)
 #     dt = 1 #ADS-B update rate
 #     simT = 80
 #     maxDv = 1 * dt
@@ -127,47 +134,77 @@ end
 #     simStep = simT/dt
 
 #     # Initial setting
-#     gameInfo = SetGame(n)
+#     gameInfo = SetGame(n, seed)
+#     out = SearchAllNash(gameInfo)
+#     global NashSet = out.primalsList
+#     global NashNum = length(NashSet)
 #     e = deepcopy(gameInfo.eInit)
 #     eInit = deepcopy(e)
 #     eHistory = Vector{Any}(undef,0)
 #     eHistory = vcat(eHistory, [eInit])
 
+#     v = zeros(n)
+#     global cumDist = zeros(NashNum)
+#     choiceList = ChoosePreference(NashSet, gameInfo)
+
 #     # Run scenario
 #     for t in 1:simStep
-#         # Calculate Nash equilibrium
-#         gameInfo = UpdateGame(gameInfo, e)
-#         out = SearchAllNash(gameInfo)
-#         NashSet = out.primalsList
-#         NashNum = length(NashSet)
-        
 #         # Select their preference
-#         choiceList = ChoosePreference(NashSet, gameInfo)
+#         # choiceList = ChoosePreference(NashSet, gameInfo)
 
 #         # Action for dt
 #         for i in 1:n
-#             e[i] = EvolveDynamics(e[i], e[i] + NashSet[choiceList[i]][i], maxDv, dt)
+#             e[i], v[i] = EvolveDynamics(e[i], v[i], eInit[i] + NashSet[choiceList[i]][i], maxDv, dt)
 #         end
 #         etemp = deepcopy(e)
 #         eHistory = vcat(eHistory,[etemp])
 
-#         # Infer
-#         distList = Vector{Any}(undef,0)
+#         # Infer (overall)
+#         overallDistList = Vector{Any}(undef,0)
 #         for j in 1:NashNum
-#             distList = vcat(distList, measureDist(e, NashSet[j]))
+#             overallDistList = vcat(overallDistList, measureOverallDist(e, NashSet[j]))
 #         end
+#         cumDist = cumDist + overallDistList
+
+#         # Infer (individual)
+#         # distList = Vector{Any}(undef,0)
+#         # for i in 1:n # for individual player
+#         #     indDistList = Vector{Any}(undef,0) # dist to an equi j of player i
+#         #     for j in 1:NashNum # for each equil.
+#         #         indDistList = vcat(indDistList, measureDist(e, NashSet[j], i))
+#         #     end
+#         #     distList = vcat(distList, [indDistList])
+#         # end
         
+#         # Update decision
+#         if t % termStep == 0
+#             println(choiceList)
+#             println("Update")
+#             choiceList = fill(findmin(cumDist)[2], n)
+#             # for i = 1:n
+#             #     choiceList[i] = Roulette(cumDist)
+#             # end
+#             # choiceList = fill(Roulette(cumDist), n)
+#             cumDist = zeros(NashNum)
+
+#             # Calculate Nash equilibrium
+#             gameInfo = UpdateGame(gameInfo, e)
+#             out = SearchAllNash(gameInfo)
+#             global NashSet = out.primalsList
+#             global NashNum = length(NashSet)
+#         end
+
 #         # println(round.(e,digits=2))
 #         # println(round.(distList,digits=2))
 #         # println(sortperm(distList))
 #         # println("Individual Preference: $(ChoosePreference(NashSet, gameInfo))")
 #         # println("System Preference: $(sortperm(SystemPreference(NashSet, gameInfo)))")
 #         # println("========")
-#         println("Step $(t)")
+#         println("Step $(convert(Int64,t))")
 #     end
 #     # println(sortperm(SystemPreference(NashSet, gameInfo)))
 #     println(eHistory)
-#     matwrite("Analysis/eHistory_iterative.mat",Dict(
+#     matwrite("Analysis/eHistory_iterative2.mat",Dict(
 #         "eHistory" => eHistory
 #     ); version="v7.4")
 # end

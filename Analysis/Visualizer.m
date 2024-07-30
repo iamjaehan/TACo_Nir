@@ -1,4 +1,4 @@
-run = [0, 1];
+run = [1, 1];
 
 if run(1) == 1
 
@@ -35,9 +35,11 @@ end
 
 if run(2) == 1
 
-% out = load("eHistory_iterative.mat");
-out = load("eHistory_single.mat");
-% out = load("eHistory_single2.mat");
+% out = load("eHistory_iterative2.mat");
+% out = load("eHistory_single.mat");
+% out = load("eHistory_individual_stochastic.mat");
+% out = load("eHistory_test.mat");
+out = load("eHistory_similarity.mat");
 out = out.eHistory;
 dataLen = length(out);
 n = length(out{1});
