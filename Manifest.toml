@@ -2,7 +2,7 @@
 
 julia_version = "1.9.4"
 manifest_format = "2.0"
-project_hash = "db42aac1ac219156a0fdc818ff160b1afa0f7e96"
+project_hash = "04234a9c34a09fcf06631fa613f2dd375d26f7f7"
 
 [[deps.ADTypes]]
 git-tree-sha1 = "016833eb52ba2d6bea9fcb50ca295980e728ee24"
@@ -986,6 +986,12 @@ deps = ["ChainRulesCore", "ForwardDiff", "LinearAlgebra", "PATHSolver", "SparseA
 git-tree-sha1 = "a1ee61fd9d9b9dd9ae145b0804b00bf2b2b0b318"
 uuid = "9b992ff8-05bb-4ea1-b9d2-5ef72d82f7ad"
 version = "0.1.7"
+
+[[deps.ParetoRecipes]]
+deps = ["RecipesBase"]
+git-tree-sha1 = "28de67e5adc33c7a7d15d463c21c4ad0ddf23bf2"
+uuid = "71a409db-0c41-4225-8938-aaf295661ce5"
+version = "0.0.1"
 
 [[deps.Parsers]]
 deps = ["Dates", "PrecompileTools", "UUIDs"]

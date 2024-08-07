@@ -54,7 +54,7 @@ function RunSim(n, termStep, seed)
     println("===============")
 
     out = SearchAllNash(gameInfo)
-    NashSet = out.primalsList
+    global NashSet = out.primalsList
     NashNum = length(NashSet)
     gameInfo = out.gameInfo
 
@@ -79,21 +79,21 @@ function RunSim(n, termStep, seed)
         eHistory = vcat(eHistory,[etemp])
 
         # # Infer (overall)
-        # overallDistList = Vector{Any}(undef,0)
-        # for j in 1:NashNum
-        #     overallDistList = vcat(overallDistList, measureOverallDist(e, NashSet[j]))
-        # end
-        # cumDist = cumDist + overallDistList
+        overallDistList = Vector{Any}(undef,0)
+        for j in 1:NashNum
+            overallDistList = vcat(overallDistList, measureOverallDist(e, NashSet[j]))
+        end
+        cumDist = cumDist + overallDistList
 
         # # Infer (individual)
-        distList = Vector{Any}(undef,0)
-        for i in 1:n # for individual player
-            indDistList = Vector{Any}(undef,0) # dist to an equi j of player i
-            for j in 1:NashNum # for each equil.
-                indDistList = vcat(indDistList, measureDist(e, NashSet[j], i))
-            end
-            distList = vcat(distList, [indDistList])
-        end
+        # distList = Vector{Any}(undef,0)
+        # for i in 1:n # for individual player
+        #     indDistList = Vector{Any}(undef,0) # dist to an equi j of player i
+        #     for j in 1:NashNum # for each equil.
+        #         indDistList = vcat(indDistList, measureDist(e, NashSet[j], i))
+        #     end
+        #     distList = vcat(distList, [indDistList])
+        # end
         
         # # Update decision
         if t % termStep == 0
