@@ -6,6 +6,9 @@ using Combinatorics
 using Statistics
 using Random
 
+include("Auction.jl")
+include("World.jl")
+
 function GenSeqSeed(n)
     if n>=10
         println("[Warning] n too big. n! is a dangerous thing.")

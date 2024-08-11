@@ -1,9 +1,6 @@
 using datfm
 using MAT
 
-include("0_GameSetup.jl")
-include("Auction.jl")
-
 function ChoosePreference(nashList, gameInfo) # Selection method
     n = gameInfo.n
     ψ = gameInfo.ψ

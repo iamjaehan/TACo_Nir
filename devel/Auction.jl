@@ -26,6 +26,18 @@ function GetCostList(gameInfo, NashList)
     return costList
 end
 
+function UpdateChoiceTakenList(assignList, nNash)
+    l = length(assignList)
+    choiceTakenList = falses(nNash)
+    for i = 1:l
+        if assignList[i] != 0
+            assignIdx = Int64(assignList[i])
+            choiceTakenList[assignIdx] = true
+        end
+    end
+    return choiceTakenList
+end
+
 abstract type NextBidderProtocol end
 struct OrderTypeNextBidder <: NextBidderProtocol end
 struct LeastFavorNextBidder <: NextBidderProtocol end
@@ -57,17 +69,16 @@ function RunAuction(gameInfo, NashList)
         firstMargin = j.firstMargin
         firstBidIdx = j.firstBidIdx
         b = CalcBidIncrease(costList[bidder,:], priceList, firstMargin, firstBidIdx)
-
-        # println(choiceTakenList)
-        # println(firstBidIdx)
         
         if choiceTakenList[firstBidIdx] == true
+            println(firstBidIdx)
+            println(assignList)
+            println(choiceTakenList)
             whoTookIt = findall(x->x==firstBidIdx, assignList)[1]
             assignList[whoTookIt] = 0
-            choiceTakenList[firstBidIdx] = false
         end
         assignList[bidder] = firstBidIdx
-        choiceTakenList[firstBidIdx] = true
+        choiceTakenList = UpdateChoiceTakenList(assignList, nNash)
         priceList[firstBidIdx] = priceList[firstBidIdx] + b
 
         println(prevAssignList)
