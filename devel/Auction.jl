@@ -13,19 +13,6 @@ function CalcBidIncrease(costList, priceList, firstMargin, firstBidIdx)
     return firstMargin - maximum(margin)
 end
 
-function GetCostList(gameInfo, NashList)
-    n = gameInfo.n
-    ψ = gameInfo.ψ
-    nNash = length(NashList)
-    costList = Array{Float64,2}(undef, n, nNash)
-    for i = 1:n
-        for j = 1:nNash
-            costList[i,j] = CalcJ(NashList[j],ψ,i)
-        end
-    end
-    return costList
-end
-
 function UpdateChoiceTakenList(assignList, nNash)
     l = length(assignList)
     choiceTakenList = falses(nNash)

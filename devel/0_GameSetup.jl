@@ -137,3 +137,25 @@ function Roulette(x)
     end
     return nothing
 end
+
+function ExtractMyU(NashSet,idx)
+    nNash = length(NashSet)
+    myU = randn(1, nNash)
+    for i = 1:nNash
+        myU[i] = NashSet[i][idx]
+    end
+    return myU
+end
+
+function GetCostList(gameInfo, NashList)
+    n = gameInfo.n
+    ψ = gameInfo.ψ
+    nNash = length(NashList)
+    costList = Array{Float64,2}(undef, n, nNash)
+    for i = 1:n
+        for j = 1:nNash
+            costList[i,j] = CalcJ(NashList[j],ψ,i)
+        end
+    end
+    return costList
+end

@@ -12,7 +12,7 @@ function ChoosePreference(nashList, gameInfo) # Selection method
         for j in 1:listLen
             candidateList = vcat(candidateList, CalcJ(nashList[j][i],ψ,i))
         end
-        choiceList = vcat(choiceList, findmin(candidateList)[2])
+        # choiceList = vcat(choiceList, findmin(candidateList)[2])
         choiceList = vcat(choiceList,findmin(SystemPreference(nashList, gameInfo))[2])
     end
 
@@ -69,6 +69,8 @@ function RunSim(n, termStep, seed)
     # Select their preference
     global choiceList = ChoosePreference(NashSet, gameInfo)
 
+    systemOptIdx = deepcopy(choiceList)
+
     # Run scenario
     for t in 1:simStep
         # Action for dt
@@ -96,15 +98,26 @@ function RunSim(n, termStep, seed)
         # end
         
         # # Update decision
+        # if t % termStep == 0
+        #     println(choiceList)
+        #     println("Update")
+        #     global choiceList = fill(findmin(cumDist)[2], n)
+        #     for i = 1:n
+        #         choiceList[i] = Roulette(map(x->1/x, cumDist))
+        #     end
+        #     # choiceList = fill(Roulette(1./cumDist), n)
+        #     println(choiceList)
+        #     cumDist = zeros(NashNum)
+        # end
+
         if t % termStep == 0
-            println(choiceList)
+            # println(choiceList)
             println("Update")
-            global choiceList = fill(findmin(cumDist)[2], n)
-            for i = 1:n
-                choiceList[i] = Roulette(map(x->1/x, cumDist))
-            end
-            # choiceList = fill(Roulette(1./cumDist), n)
-            println(choiceList)
+            out = RunVote(gameInfo, NashSet)
+            bestIdx = out.bestIdx
+            println(bestIdx)
+            # println(out.score)
+            global choiceList = fill(bestIdx,n)
             cumDist = zeros(NashNum)
         end
 
@@ -113,12 +126,12 @@ function RunSim(n, termStep, seed)
         # println(sortperm(overallDistList))
         # println(round.(overallDistList,digits=2))
         # println(map(x -> round.(x./sum(x),digits=2), distList))
-        # println("============")
     end
-    println(sortperm(cumDist))
     # println("Individual Preference: $(ChoosePreference(NashSet, gameInfo))")
     # println(sortperm(SystemPreference(NashSet, gameInfo)))
     # println("System Preference: $(SystemPreference(NashSet, gameInfo))")
+    println(systemOptIdx)
+    println("============")
     
     matwrite("Analysis/eHistory_similarity.mat",Dict(
         "eHistory" => eHistory
