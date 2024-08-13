@@ -99,6 +99,10 @@ function RunSim(n, termStep, seed)
     global choiceList = ChoosePreference(Voting(), NashSet, gameInfo)
     # global choiceList = ChoosePreference(SystemOptimal(), NashSet, gameInfo)
 
+    global sysOpt = ChoosePreference(SystemOptimal(), NashSet, gameInfo)
+    sysOpt = sysOpt[1]
+    println("system optimal: $(sysOpt)")
+
     systemOptIdx = deepcopy(choiceList)
 
     # Run scenario
@@ -146,9 +150,6 @@ function RunSim(n, termStep, seed)
         # println(round.(overallDistList,digits=2))
         # println(map(x -> round.(x./sum(x),digits=2), distList))
     end
-    # println("Individual Preference: $(ChoosePreference(NashSet, gameInfo))")
-    # println(sortperm(SystemPreference(NashSet, gameInfo)))
-    # println("System Preference: $(SystemPreference(NashSet, gameInfo))")
     println(systemOptIdx)
     println("============")
     
