@@ -9,6 +9,7 @@ using Random
 include("Auction.jl")
 include("World.jl")
 include("Vote.jl")
+include("DiscountAuction.jl")
 
 function GenSeqSeed(n)
     if n>=10
