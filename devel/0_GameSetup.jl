@@ -30,10 +30,10 @@ function SetGame(n, seed)
     rng = rand(MersenneTwister(seed),2)
     rng1 = MersenneTwister(convert(Int64,ceil(rng[1]*1000)))
     rng2 = MersenneTwister(convert(Int64,ceil(rng[2]*1000)))
-    println("Seed: $(seed)")
+    # println("Seed: $(seed)")
 
     D = 5 # Separation distance
-    L = 20 # Dispersed range 
+    L = 12 # Dispersed range 
     e = rand(rng1,n)*L # Initial ETA for the players
     eInit = deepcopy(e)
     ψ = rand(rng2,n)*10
@@ -160,4 +160,14 @@ function GetCostList(gameInfo, NashList)
         end
     end
     return costList
+end
+
+function EvalSystemScore(gameInfo, NashList, idx)
+    n = gameInfo.n
+    ψ = gameInfo.ψ
+    systemScore = 0
+    for i = 1:n
+        systemScore = systemScore + sqrt(CalcJ(NashList[idx][i],ψ,i))
+    end
+    return systemScore
 end

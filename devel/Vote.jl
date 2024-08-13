@@ -2,7 +2,7 @@ using datfm
 using Clustering: dbscan, DbscanResult
 
 # Clustering param.
-global radius = 0.2
+global radius = 10
 global γ = 0.8 # radius reduction rate
 
 function DetectComm(NashSet, idx)
@@ -57,7 +57,7 @@ function LetsVote(c::ApprovalVote_Cluster, gameInfo, costList, NashSet, scoreBoa
         clusterScore[i] = mean(localCost[core])
     end
     bestIdx = findmin(clusterScore)[2]
-    scoreBoard[clusterList[bestIdx].core_indices] = scoreBoard[clusterList[bestIdx].core_indices] .+ 1# * ψ[idx]
+    scoreBoard[clusterList[bestIdx].core_indices] = scoreBoard[clusterList[bestIdx].core_indices] .+ (1 * ψ[idx])
     return scoreBoard
 end
 
@@ -79,8 +79,10 @@ function RunVote(gameInfo, NashSet)
     idxHistory = vcat(idxHistory, [1:nNash])
 
     costList = GetCostList(gameInfo, NashSet)
-
+    count = 0
+    
     while true
+        count = count + 1
         for i = 1:n
             # scoreBoard = LetsVote(ApprovalVote_Float(), costList, scoreBoard, i)
             # scoreBoard = LetsVote(ApprovalVote_Int(), costList, scoreBoard, i)
@@ -93,10 +95,13 @@ function RunVote(gameInfo, NashSet)
         bestIdxs = findall(x -> x==bestScore, scoreBoard)
         # println(bestIdxs)
 
-        if length(bestIdxs) == 1
+        if length(bestIdxs) == 1 || count > 100
+            if count > 100
+                println("Warning: Converge fail")
+            end
             break
         end
-        # global radius = radius * γ
+        global radius = radius * γ
         NashSet = NashSet[bestIdxs]
         nNash = length(NashSet)
         costList = costList[:,bestIdxs]
@@ -104,10 +109,10 @@ function RunVote(gameInfo, NashSet)
         idxHistory = vcat(idxHistory, [bestIdxs])
     end
 
-    println("bestIdx: $(bestIdx)")
-    println("idxHistory: $(idxHistory)")
+    # println("bestIdx: $(bestIdx)")
+    # println("idxHistory: $(idxHistory)")
     global bestIdx = IdxDecode(idxHistory, bestIdx)
-    println("Decoded bestIdx: $(bestIdx)")
+    # println("Decoded bestIdx: $(bestIdx)")
 
     (; score = scoreBoard, bestScore, bestIdx)
 end

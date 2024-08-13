@@ -27,7 +27,8 @@ function UpdateOfferList(offerList, plIdx, bidIdx)
     # return offerList
     for i = 1:length(bidIdx)
         localBid = bidIdx[i]
-        offerList[:,localBid] = offerList[:,localBid] .+ discount/ i
+        offerList[:,localBid] = offerList[:,localBid] .+ discount/i
+        offerList[plIdx,localBid] = offerList[plIdx,localBid] .- discount/i
     end
     return offerList
 end
@@ -35,9 +36,10 @@ end
 function UpdatePayList(payList, plIdx, bidIdx)
     # payList[plIdx,bidIdx] = payList[plIdx,bidIdx] + discount
     # return payList
+    n = size(payList)[1]
     for i = 1:length(bidIdx)
         localBid = bidIdx[i]
-        payList[plIdx,localBid] = payList[plIdx,localBid] + discount/i
+        payList[plIdx,localBid] = payList[plIdx,localBid] + discount/i*n
     end
     return payList
 end
@@ -55,7 +57,7 @@ function RunDiscAuction(gameInfo, NashList)
     while true
         count = count + 1
         prevAssignList = deepcopy(assignList)
-        println("Iteration #$(count)")
+        # println("Iteration #$(count)")
 
         # Choose bidder
         bidder = WhoIsNext(nextBidderProtocol, n, count)
@@ -69,7 +71,7 @@ function RunDiscAuction(gameInfo, NashList)
         priceList = costList + payList - offerList
         # Assign
         assignList[bidder] = bestBidIdx[1]
-        println(map(x->Int64(x),assignList))
+        # println(map(x->Int64(x),assignList))
 
         if iszero(assignList.-assignList[1]) || count > 100
             break

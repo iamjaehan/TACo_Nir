@@ -64,10 +64,11 @@ function SystemPreference(nashList, gameInfo)
 
     systemScoreList = Vector{Any}(undef,0)
     for i = 1:listLen
-        systemScore = 0
-        for j = 1:n
-            systemScore = systemScore + CalcJ(nashList[i][j],ψ,j)
-        end
+        # systemScore = 0
+        # for j = 1:n
+        #     systemScore = systemScore + CalcJ(nashList[i][j],ψ,j)
+        # end
+        systemScore = EvalSystemScore(gameInfo, nashList, i)
         systemScoreList = vcat(systemScoreList, systemScore)
     end
     return systemScoreList
@@ -80,16 +81,16 @@ function RunScenario(n)
 end
 
 # Single game
-function RunSim(n, termStep, seed)
+function RunSim(n, termStep, seed, prefSelectionStrategy::PrefSelectionStrategy; matWrite=true)
     dt = 1 #ADS-B update rate
-    simT = 80
+    simT = 40
     maxDv = 1 * dt
 
     simStep = simT/dt
 
     global gameInfo = SetGame(n, seed)
-    println("GameInfo: n = $(n), ψ = $(gameInfo.ψ)")
-    println("===============")
+    # println("GameInfo: n = $(n), ψ = $(gameInfo.ψ)")
+    # println("===============")
     ψ = gameInfo.ψ
 
     out = SearchAllNash(gameInfo)
@@ -108,14 +109,15 @@ function RunSim(n, termStep, seed)
     # Select their preference
     # global choiceList = ChoosePreference(Voting(), NashSet, gameInfo)
     # global choiceList = ChoosePreference(SystemOptimal(), NashSet, gameInfo)
-    global choiceList = ChoosePreference(Auction(), NashSet, gameInfo)
+    # global choiceList = ChoosePreference(Auction(), NashSet, gameInfo)
     # global choiceList = ChoosePreference(Selfish(), NashSet, gameInfo)
+    global choiceList = ChoosePreference(prefSelectionStrategy, NashSet, gameInfo)
 
     global sysOpt = ChoosePreference(SystemOptimal(), NashSet, gameInfo)
     sysOpt = sysOpt[1]
-    println("system optimal: $(sysOpt)")
+    # println("system optimal: $(sysOpt)")
 
-    systemOptIdx = deepcopy(choiceList)
+    # systemOptIdx = deepcopy(ChoosePreference(SystemOptimal(), NashSet, gameInfo))
 
     # Run scenario
     for t in 1:simStep
@@ -162,13 +164,22 @@ function RunSim(n, termStep, seed)
         # println(round.(overallDistList,digits=2))
         # println(map(x -> round.(x./sum(x),digits=2), distList))
     end
-    println(systemOptIdx)
-    println("============")
+    # println(systemOptIdx)
+    # println("============")
     
-    matwrite("Analysis/eHistory_similarity.mat",Dict(
-        "eHistory" => eHistory,
-        "psi" => ψ
-    ); version="v7.4")
+    if matWrite
+        matwrite("Analysis/eHistory_similarity.mat",Dict(
+            "eHistory" => eHistory,
+            "psi" => ψ
+        ); version="v7.4")
+    end
+
+    currentScore = EvalSystemScore(gameInfo, NashSet, choiceList[1])
+    optScore = EvalSystemScore(gameInfo, NashSet, sysOpt)
+
+    # println(optScore)
+    # println(currentScore)
+    return (currentScore-optScore)/optScore
 end
 
 # Iterative gaming
