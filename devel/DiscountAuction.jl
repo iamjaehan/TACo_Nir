@@ -1,8 +1,9 @@
 using datfm
 
-global discount = 10;
-global nextBidderProtocol = LeastFavorNextBidder() # LeastFavorNextBidder, OrderTypeNextBidder
-# global nextBidderProtocol = OrderTypeNextBidder()
+global discount = 10
+global topN = 5
+# global nextBidderProtocol = LeastFavorNextBidder() # LeastFavorNextBidder, OrderTypeNextBidder
+global nextBidderProtocol = OrderTypeNextBidder()
 
 abstract type NextBidderProtocol end
 struct OrderTypeNextBidder <: NextBidderProtocol end
@@ -17,17 +18,27 @@ function WhoIsNext(c::LeastFavorNextBidder, n, counter)
 end
 
 function GetBestBid(priceList)
-    # (; bestMargin = findmin(priceList)[1], bestBidIdx = findmin(priceList)[2])
-    return findmin(priceList)[2]
+    # return findmin(priceList)[2]
+    return partialsortperm(priceList,1:topN,rev=false)
 end
 
 function UpdateOfferList(offerList, plIdx, bidIdx)
-    offerList[:,bidIdx] = offerList[:,bidIdx] .+ discount
+    # offerList[:,bidIdx] = offerList[:,bidIdx] .+ discount
+    # return offerList
+    for i = 1:length(bidIdx)
+        localBid = bidIdx[i]
+        offerList[:,localBid] = offerList[:,localBid] .+ discount/ i
+    end
     return offerList
 end
 
 function UpdatePayList(payList, plIdx, bidIdx)
-    payList[plIdx,bidIdx] = payList[plIdx,bidIdx] + discount
+    # payList[plIdx,bidIdx] = payList[plIdx,bidIdx] + discount
+    # return payList
+    for i = 1:length(bidIdx)
+        localBid = bidIdx[i]
+        payList[plIdx,localBid] = payList[plIdx,localBid] + discount/i
+    end
     return payList
 end
 
@@ -57,7 +68,7 @@ function RunDiscAuction(gameInfo, NashList)
         # Update priceList
         priceList = costList + payList - offerList
         # Assign
-        assignList[bidder] = bestBidIdx
+        assignList[bidder] = bestBidIdx[1]
         println(map(x->Int64(x),assignList))
 
         if iszero(assignList.-assignList[1]) || count > 100

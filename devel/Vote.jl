@@ -2,7 +2,7 @@ using datfm
 using Clustering: dbscan, DbscanResult
 
 # Clustering param.
-global radius = 1
+global radius = 0.2
 global γ = 0.8 # radius reduction rate
 
 function DetectComm(NashSet, idx)
@@ -96,7 +96,7 @@ function RunVote(gameInfo, NashSet)
         if length(bestIdxs) == 1
             break
         end
-        global radius = radius * γ
+        # global radius = radius * γ
         NashSet = NashSet[bestIdxs]
         nNash = length(NashSet)
         costList = costList[:,bestIdxs]
