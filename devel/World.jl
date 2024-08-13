@@ -83,7 +83,7 @@ end
 # Single game
 function RunSim(n, termStep, seed, prefSelectionStrategy::PrefSelectionStrategy; matWrite=true)
     dt = 1 #ADS-B update rate
-    simT = 40
+    simT = 80
     maxDv = 1 * dt
 
     simStep = simT/dt

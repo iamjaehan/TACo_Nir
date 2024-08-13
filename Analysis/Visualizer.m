@@ -63,8 +63,9 @@ for i = 1:n
     text(data(1,i),0.1,"#"+num2str(i))
 end
 grid on
-colormap(jet)
-colorbar
+colormap("jet")
+cb = colorbar;
 caxis([min(psi) max(psi)])
+ylabel(cb,'urgency','FontSize',15)
 
 end

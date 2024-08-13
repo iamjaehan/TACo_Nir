@@ -8,7 +8,7 @@ stdVal = std(data');
 
 figure(2)
 clf
-boxplot(data')
+boxplot(data','Whisker',2)
 xticklabels({'Auction','Voting'})
 a = get(gca,'XTickLabel');
 set(gca,'XTickLabel',a,'FontName','Times','fontsize',18)
