@@ -61,11 +61,22 @@ function LetsVote(c::ApprovalVote_Cluster, gameInfo, costList, NashSet, scoreBoa
     return scoreBoard
 end
 
+function IdxDecode(idxHistory, idx)
+    histLen = length(idxHistory)
+    for i = 1:histLen
+        tempIdx = idxHistory[end-i+1][idx]
+        idx = tempIdx
+    end
+    return idx
+end
+
 function RunVote(gameInfo, NashSet)
     n = gameInfo.n
     nNash = length(NashSet)
     clusterInfo = Vector{DbscanResult}(undef, n)
     scoreBoard = zeros(nNash)
+    idxHistory = Vector{Any}(undef,0)
+    idxHistory = vcat(idxHistory, [1:nNash])
 
     costList = GetCostList(gameInfo, NashSet)
 
@@ -76,11 +87,11 @@ function RunVote(gameInfo, NashSet)
             # scoreBoard = LetsVote(ApprovalVote_Int_Cont(), costList, scoreBoard, i)
             scoreBoard = LetsVote(ApprovalVote_Cluster(), gameInfo, costList, NashSet, scoreBoard, i)
         end
-        println(map(x -> round(x, digits=2), scoreBoard))
+        # println(map(x -> round(x, digits=2), scoreBoard))
         global bestScore = findmax(scoreBoard)[1]
         global bestIdx = findmax(scoreBoard)[2]
         bestIdxs = findall(x -> x==bestScore, scoreBoard)
-        println(bestIdxs)
+        # println(bestIdxs)
 
         if length(bestIdxs) == 1
             break
@@ -88,9 +99,15 @@ function RunVote(gameInfo, NashSet)
         global radius = radius * γ
         NashSet = NashSet[bestIdxs]
         nNash = length(NashSet)
+        costList = costList[:,bestIdxs]
         scoreBoard = zeros(nNash)
+        idxHistory = vcat(idxHistory, [bestIdxs])
     end
 
+    println("bestIdx: $(bestIdx)")
+    println("idxHistory: $(idxHistory)")
+    global bestIdx = IdxDecode(idxHistory, bestIdx)
+    println("Decoded bestIdx: $(bestIdx)")
 
     (; score = scoreBoard, bestScore, bestIdx)
 end

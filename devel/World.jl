@@ -47,6 +47,16 @@ function ChoosePreference(c::Voting, nashSet, gameInfo)
     return choiceList
 end
 
+function ChoosePreference(c::Auction, nashSet, gameInfo)
+    n = gameInfo.n
+    NashNum = length(nashSet)
+    out = RunDiscAuction(gameInfo, nashSet)
+    bestIdx = out.bestIdx
+    choiceList = fill(bestIdx,n)
+    cumDist = zeros(NashNum)
+    return choiceList
+end
+
 function SystemPreference(nashList, gameInfo)
     n = gameInfo.n
     ψ = gameInfo.ψ
@@ -96,8 +106,10 @@ function RunSim(n, termStep, seed)
 
     global cumDist = zeros(NashNum)
     # Select their preference
-    global choiceList = ChoosePreference(Voting(), NashSet, gameInfo)
+    # global choiceList = ChoosePreference(Voting(), NashSet, gameInfo)
     # global choiceList = ChoosePreference(SystemOptimal(), NashSet, gameInfo)
+    global choiceList = ChoosePreference(Auction(), NashSet, gameInfo)
+    # global choiceList = ChoosePreference(Selfish(), NashSet, gameInfo)
 
     global sysOpt = ChoosePreference(SystemOptimal(), NashSet, gameInfo)
     sysOpt = sysOpt[1]

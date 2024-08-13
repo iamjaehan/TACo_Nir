@@ -156,7 +156,7 @@ function GetCostList(gameInfo, NashList)
     costList = Array{Float64,2}(undef, n, nNash)
     for i = 1:n
         for j = 1:nNash
-            costList[i,j] = CalcJ(NashList[j],ψ,i)
+            costList[i,j] = CalcJ(NashList[j][i],ψ,i)
         end
     end
     return costList
