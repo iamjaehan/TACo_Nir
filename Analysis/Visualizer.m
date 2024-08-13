@@ -1,4 +1,4 @@
-run = [1, 1];
+run = [0, 1];
 
 if run(1) == 1
 
@@ -34,29 +34,37 @@ end
 %%%%%%%
 
 if run(2) == 1
-
-% out = load("eHistory_iterative2.mat");
-% out = load("eHistory_single.mat");
-% out = load("eHistory_individual_stochastic.mat");
-% out = load("eHistory_test.mat");
-out = load("eHistory_similarity.mat");
-out = out.eHistory;
+outRaw = load("eHistory_similarity.mat");
+out = outRaw.eHistory;
 dataLen = length(out);
 n = length(out{1});
+psi = outRaw.psi;
 data = zeros(dataLen,n);
 
 for i = 1:dataLen
     data(i,:) = out{i};
 end
 
+cMap = jet(1000);
+cList = zeros(n,3);
+for i = 1:n
+    idx = round((psi(i)-min(psi))/(max(psi)-min(psi))*1000);
+    if idx == 0
+        idx = 1;
+    end
+    cList(i,:) = cMap(idx,:);
+end
 
 figure(21)
 clf
 for i = 1:n
-    plot(data(:,i),-(1:dataLen),'o:')
+    plot(data(:,i),-(1:dataLen),'o:','Color',cList(i,:))
     hold on
     text(data(1,i),0.1,"#"+num2str(i))
 end
 grid on
+colormap(jet)
+colorbar
+caxis([min(psi) max(psi)])
 
 end

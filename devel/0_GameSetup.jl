@@ -29,9 +29,10 @@ function SetGame(n, seed)
     rng = rand(MersenneTwister(seed),2)
     rng1 = MersenneTwister(convert(Int64,ceil(rng[1]*1000)))
     rng2 = MersenneTwister(convert(Int64,ceil(rng[2]*1000)))
+    println("Seed: $(seed)")
 
-    D = 10
-    L = 10
+    D = 5 # Separation distance
+    L = 20 # Dispersed range 
     e = rand(rng1,n)*L # Initial ETA for the players
     eInit = deepcopy(e)
     ψ = rand(rng2,n)*10

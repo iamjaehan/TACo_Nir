@@ -1,8 +1,8 @@
 using datfm
-using Clustering: dbscan
+using Clustering: dbscan, DbscanResult
 
 # Clustering param.
-global radius = 2
+global radius = 0.1
 global γ = 0.8 # radius reduction rate
 
 function DetectComm(NashSet, idx)
@@ -44,19 +44,20 @@ function LetsVote(c::ApprovalVote_Int_Cont, costList, scoreBoard, idx)
     return scoreBoard
 end
 
-function LetsVote(c::ApprovalVote_Cluster, costList, NashSet, scoreBoard, idx)
+function LetsVote(c::ApprovalVote_Cluster, gameInfo, costList, NashSet, scoreBoard, idx)
     cluster = DetectComm(NashSet, idx)
     clusterList = cluster.clusters
     nCluster = length(clusterList)
     localCost = costList[idx,:]
     clusterScore = Vector{Float64}(undef, nCluster)
+    ψ = gameInfo.ψ
     for i = 1:nCluster
         localCluster = clusterList[i]
         core = localCluster.core_indices
         clusterScore[i] = mean(localCost[core])
     end
     bestIdx = findmin(clusterScore)[2]
-    scoreBoard[clusterList[bestIdx].core_indices] = scoreBoard[clusterList[bestIdx].core_indices] .+ 1
+    scoreBoard[clusterList[bestIdx].core_indices] = scoreBoard[clusterList[bestIdx].core_indices] .+ 1 * ψ[idx]
     return scoreBoard
 end
 
@@ -68,16 +69,11 @@ function RunVote(gameInfo, NashSet)
 
     costList = GetCostList(gameInfo, NashSet)
 
-    # for i = 1:n
-    #     cluster = DetectComm(NashSet, i)
-    #     clusterInfo[i] = cluster
-    # end
-
     for i = 1:n
         # scoreBoard = LetsVote(ApprovalVote_Float(), costList, scoreBoard, i)
         # scoreBoard = LetsVote(ApprovalVote_Int(), costList, scoreBoard, i)
         # scoreBoard = LetsVote(ApprovalVote_Int_Cont(), costList, scoreBoard, i)
-        scoreBoard = LetsVote(ApprovalVote_Cluster(), costList, NashSet, scoreBoard, i)
+        scoreBoard = LetsVote(ApprovalVote_Cluster(), gameInfo, costList, NashSet, scoreBoard, i)
     end
 
     (; score = scoreBoard, bestScore = findmax(scoreBoard)[1], bestIdx = findmax(scoreBoard)[2])

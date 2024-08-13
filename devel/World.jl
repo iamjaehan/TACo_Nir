@@ -1,21 +1,49 @@
 using datfm
 using MAT
 
-function ChoosePreference(nashList, gameInfo) # Selection method
+abstract type PrefSelectionStrategy end
+struct Selfish <: PrefSelectionStrategy end
+struct SystemOptimal <: PrefSelectionStrategy end
+struct Voting <: PrefSelectionStrategy end
+struct Auction <: PrefSelectionStrategy end
+
+function ChoosePreference(c::SystemOptimal, nashList, gameInfo) # Selection method
     n = gameInfo.n
     ψ = gameInfo.ψ
     listLen = length(nashList)
-
     choiceList = Vector{Any}(undef,0)
     for i in 1:n
         candidateList = Vector{Any}(undef,0)
         for j in 1:listLen
             candidateList = vcat(candidateList, CalcJ(nashList[j][i],ψ,i))
         end
-        # choiceList = vcat(choiceList, findmin(candidateList)[2])
         choiceList = vcat(choiceList,findmin(SystemPreference(nashList, gameInfo))[2])
     end
+    return choiceList
+end
 
+function ChoosePreference(c::Selfish, nashList, gameInfo)
+    n = gameInfo.n
+    ψ = gameInfo.ψ
+    listLen = length(nashList)
+    choiceList = Vector{Any}(undef,0)
+    for i in 1:n
+        candidateList = Vector{Any}(undef,0)
+        for j in 1:listLen
+            candidateList = vcat(candidateList, CalcJ(nashList[j][i],ψ,i))
+        end
+        choiceList = vcat(choiceList, findmin(candidateList)[2])      
+    end
+    return choiceList
+end
+
+function ChoosePreference(c::Voting, nashSet, gameInfo)
+    n = gameInfo.n
+    NashNum = length(nashSet)
+    out = RunVote(gameInfo, nashSet)
+    bestIdx = out.bestIdx
+    choiceList = fill(bestIdx,n)
+    cumDist = zeros(NashNum)
     return choiceList
 end
 
@@ -37,7 +65,7 @@ end
 
 function RunScenario(n)
     out = SearchAllNash(n)
-    choiceList = ChoosePreference(out.primalsList, out.gameInfo)
+    choiceList = ChoosePreference(Voting(), out.primalsList, out.gameInfo)
     return choiceList
 end
 
@@ -52,6 +80,7 @@ function RunSim(n, termStep, seed)
     global gameInfo = SetGame(n, seed)
     println("GameInfo: n = $(n), ψ = $(gameInfo.ψ)")
     println("===============")
+    ψ = gameInfo.ψ
 
     out = SearchAllNash(gameInfo)
     global NashSet = out.primalsList
@@ -67,7 +96,8 @@ function RunSim(n, termStep, seed)
 
     global cumDist = zeros(NashNum)
     # Select their preference
-    global choiceList = ChoosePreference(NashSet, gameInfo)
+    global choiceList = ChoosePreference(Voting(), NashSet, gameInfo)
+    # global choiceList = ChoosePreference(SystemOptimal(), NashSet, gameInfo)
 
     systemOptIdx = deepcopy(choiceList)
 
@@ -110,17 +140,6 @@ function RunSim(n, termStep, seed)
         #     cumDist = zeros(NashNum)
         # end
 
-        if t % termStep == 0
-            # println(choiceList)
-            println("Update")
-            out = RunVote(gameInfo, NashSet)
-            bestIdx = out.bestIdx
-            println(bestIdx)
-            # println(out.score)
-            global choiceList = fill(bestIdx,n)
-            cumDist = zeros(NashNum)
-        end
-
         # println(round.(e,digits=2))
         # println(round.(distList,digits=2))
         # println(sortperm(overallDistList))
@@ -134,7 +153,8 @@ function RunSim(n, termStep, seed)
     println("============")
     
     matwrite("Analysis/eHistory_similarity.mat",Dict(
-        "eHistory" => eHistory
+        "eHistory" => eHistory,
+        "psi" => ψ
     ); version="v7.4")
 end
 
