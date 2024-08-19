@@ -10,6 +10,7 @@ include("Auction.jl")
 include("World.jl")
 include("Vote.jl")
 include("DiscountAuction.jl")
+include("PrivateInfo.jl")
 
 function GenSeqSeed(n)
     if n>=10
