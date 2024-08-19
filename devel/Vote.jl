@@ -70,7 +70,7 @@ function IdxDecode(idxHistory, idx)
     return idx
 end
 
-function RunVote(gameInfo, NashSet)
+function RunVote(gameInfo, NashSet, privateInfo)
     n = gameInfo.n
     nNash = length(NashSet)
     clusterInfo = Vector{DbscanResult}(undef, n)
@@ -97,7 +97,7 @@ function RunVote(gameInfo, NashSet)
 
         if length(bestIdxs) == 1 || count > 100
             if count > 100
-                println("Warning: Converge fail")
+                println("[Warning] Convergence Failure [Voting]")
             end
             break
         end
@@ -114,5 +114,5 @@ function RunVote(gameInfo, NashSet)
     global bestIdx = IdxDecode(idxHistory, bestIdx)
     # println("Decoded bestIdx: $(bestIdx)")
 
-    (; score = scoreBoard, bestScore, bestIdx)
+    (; score = scoreBoard, bestScore, bestIdx, count)
 end

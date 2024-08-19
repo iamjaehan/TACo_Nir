@@ -7,7 +7,7 @@ struct SystemOptimal <: PrefSelectionStrategy end
 struct Voting <: PrefSelectionStrategy end
 struct Auction <: PrefSelectionStrategy end
 
-function ChoosePreference(c::SystemOptimal, nashList, gameInfo) # Selection method
+function ChoosePreference(c::SystemOptimal, nashList, gameInfo, privateInfo) # Selection method
     n = gameInfo.n
     ψ = gameInfo.ψ
     listLen = length(nashList)
@@ -22,7 +22,7 @@ function ChoosePreference(c::SystemOptimal, nashList, gameInfo) # Selection meth
     return choiceList
 end
 
-function ChoosePreference(c::Selfish, nashList, gameInfo)
+function ChoosePreference(c::Selfish, nashList, gameInfo, privateInfo)
     n = gameInfo.n
     ψ = gameInfo.ψ
     listLen = length(nashList)
@@ -37,24 +37,26 @@ function ChoosePreference(c::Selfish, nashList, gameInfo)
     return choiceList
 end
 
-function ChoosePreference(c::Voting, nashSet, gameInfo)
+function ChoosePreference(c::Voting, nashSet, gameInfo, privateInfo)
     n = gameInfo.n
     NashNum = length(nashSet)
-    out = RunVote(gameInfo, nashSet)
+    out = RunVote(gameInfo, nashSet, privateInfo)
     bestIdx = out.bestIdx
+    count = out.count
     choiceList = fill(bestIdx,n)
     cumDist = zeros(NashNum)
-    return choiceList
+    return (;choiceList, count)
 end
 
-function ChoosePreference(c::Auction, nashSet, gameInfo)
+function ChoosePreference(c::Auction, nashSet, gameInfo, privateInfo)
     n = gameInfo.n
     NashNum = length(nashSet)
-    out = RunDiscAuction(gameInfo, nashSet)
+    out = RunDiscAuction(gameInfo, nashSet, privateInfo)
     bestIdx = out.bestIdx
+    count = out.count
     choiceList = fill(bestIdx,n)
     cumDist = zeros(NashNum)
-    return choiceList
+    return (;choiceList, count)
 end
 
 function SystemPreference(nashList, gameInfo)
@@ -81,7 +83,7 @@ function RunScenario(n)
 end
 
 # Single game
-function RunSim(n, termStep, seed, prefSelectionStrategy::PrefSelectionStrategy; matWrite=true)
+function RunSim(n, termStep, seed, prefSelectionStrategy::PrefSelectionStrategy; matWrite=true, usePrivateInfo=true)
     dt = 1 #ADS-B update rate
     simT = 80
     maxDv = 1 * dt
@@ -107,17 +109,18 @@ function RunSim(n, termStep, seed, prefSelectionStrategy::PrefSelectionStrategy;
 
     global cumDist = zeros(NashNum)
     # Select their preference
-    # global choiceList = ChoosePreference(Voting(), NashSet, gameInfo)
-    # global choiceList = ChoosePreference(SystemOptimal(), NashSet, gameInfo)
-    # global choiceList = ChoosePreference(Auction(), NashSet, gameInfo)
-    # global choiceList = ChoosePreference(Selfish(), NashSet, gameInfo)
-    global choiceList = ChoosePreference(prefSelectionStrategy, NashSet, gameInfo)
+    if usePrivateInfo
+        GenPrivatePref(gameInfo, seed)
+        privateInfo = GetPrivatePref()
+    else
+        privateInfo = ones(n)
+    end
+    tempOut = ChoosePreference(prefSelectionStrategy, NashSet, gameInfo, privateInfo)
+    global choiceList = tempOut.choiceList
+    count = tempOut.count
 
     global sysOpt = ChoosePreference(SystemOptimal(), NashSet, gameInfo)
     sysOpt = sysOpt[1]
-    # println("system optimal: $(sysOpt)")
-
-    # systemOptIdx = deepcopy(ChoosePreference(SystemOptimal(), NashSet, gameInfo))
 
     # Run scenario
     for t in 1:simStep
@@ -179,7 +182,12 @@ function RunSim(n, termStep, seed, prefSelectionStrategy::PrefSelectionStrategy;
 
     # println(optScore)
     # println(currentScore)
-    return (currentScore-optScore)/optScore
+    optGap = (currentScore-optScore)/optScore
+    if prefSelectionStrategy == Auction() || prefSelectionStrategy == Voting()
+        return (;optGap, count)
+    else
+        return (;optGap)
+    end
 end
 
 # Iterative gaming

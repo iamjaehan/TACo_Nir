@@ -1,7 +1,7 @@
 using datfm
 
 global discount = 10
-global topN = 5
+global topN = 1
 # global nextBidderProtocol = LeastFavorNextBidder() # LeastFavorNextBidder, OrderTypeNextBidder
 global nextBidderProtocol = OrderTypeNextBidder()
 
@@ -22,29 +22,31 @@ function GetBestBid(priceList)
     return partialsortperm(priceList,1:topN,rev=false)
 end
 
-function UpdateOfferList(offerList, plIdx, bidIdx)
+function UpdateOfferList(n, offerList, plIdx, bidIdx, privateInfo)
     # offerList[:,bidIdx] = offerList[:,bidIdx] .+ discount
     # return offerList
     for i = 1:length(bidIdx)
         localBid = bidIdx[i]
-        offerList[:,localBid] = offerList[:,localBid] .+ discount/i
-        offerList[plIdx,localBid] = offerList[plIdx,localBid] .- discount/i
+        for j = 1:n
+            offerList[j,localBid] = offerList[j,localBid] .+ discount/i*privateInfo[j]
+        end
+        offerList[plIdx,localBid] = offerList[plIdx,localBid] .- discount/i*privateInfo[plIdx]
     end
     return offerList
 end
 
-function UpdatePayList(payList, plIdx, bidIdx)
+function UpdatePayList(payList, plIdx, bidIdx, privateInfo)
     # payList[plIdx,bidIdx] = payList[plIdx,bidIdx] + discount
     # return payList
     n = size(payList)[1]
     for i = 1:length(bidIdx)
         localBid = bidIdx[i]
-        payList[plIdx,localBid] = payList[plIdx,localBid] + discount/i*n
+        payList[plIdx,localBid] = payList[plIdx,localBid] + discount/i*n*privateInfo[plIdx]
     end
     return payList
 end
 
-function RunDiscAuction(gameInfo, NashList)
+function RunDiscAuction(gameInfo, NashList, privateInfo)
     n = gameInfo.n
     nNash = length(NashList)
     assignList = zeros(n)
@@ -64,20 +66,23 @@ function RunDiscAuction(gameInfo, NashList)
         # Choose the best choice
         bestBidIdx = GetBestBid(priceList[bidder,:])
         # Update offerList
-        offerList = UpdateOfferList(offerList, bidder, bestBidIdx)
+        offerList = UpdateOfferList(n, offerList, bidder, bestBidIdx, privateInfo)
         # Update payList
-        payList = UpdatePayList(payList, bidder, bestBidIdx)
+        payList = UpdatePayList(payList, bidder, bestBidIdx, privateInfo)
         # Update priceList
         priceList = costList + payList - offerList
         # Assign
         assignList[bidder] = bestBidIdx[1]
         # println(map(x->Int64(x),assignList))
 
-        if iszero(assignList.-assignList[1]) || count > 100
+        if iszero(assignList.-assignList[1]) || count > 1000
+            if count > 1000
+                println("[Warning] Convergence Failure [Auction]")
+            end
             break
         end
     end
 
     bestIdx = Int64(assignList[1])
-    return (; bestIdx)
+    return (; bestIdx, count)
 end
