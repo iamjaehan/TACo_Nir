@@ -1,6 +1,7 @@
 using datfm
 
 global discount = 10
+global increment = 1.5
 global topN = 1
 # global nextBidderProtocol = LeastFavorNextBidder() # LeastFavorNextBidder, OrderTypeNextBidder
 global nextBidderProtocol = OrderTypeNextBidder()
@@ -58,6 +59,7 @@ function RunDiscAuction(gameInfo, NashList, privateInfo)
     count = 0
     while true
         count = count + 1
+        global discount = discount * increment^(count-1)
         prevAssignList = deepcopy(assignList)
         # println("Iteration #$(count)")
 

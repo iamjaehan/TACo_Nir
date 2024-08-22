@@ -3,8 +3,8 @@ using MAT
 
 include("World.jl")
 
-iterNum = 10;
-n = 5;
+iterNum = 100;
+n = 4;
 
 Record = Array{Any,2}(undef,3,iterNum)
 Count = Array{Any,2}(undef,3,iterNum)
@@ -23,7 +23,7 @@ for i = 1:iterNum
     println("Iter $(i) out of $(iterNum) done!")
 end
 
-matwrite("Analysis/MC_5p.mat",Dict(
+matwrite("Analysis/MC_faster_iteration.mat",Dict(
     "Record" => Record,
     "Count" => Count
 ); version="v7.4")
