@@ -7,6 +7,9 @@ count2 = data2.Count;
 data3 = load("MC_3p.mat");
 count3 = data3.Count;
 
+data4 = load("MC_5p.mat");
+count4 = data4.Count;
+
 data1 = data1.Record;
 data1 = cell2mat(data1);
 
@@ -16,16 +19,20 @@ data2 = cell2mat(data2);
 data3 = data3.Record;
 data3 = cell2mat(data3);
 
+data4 = data4.Record;
+data4 = cell2mat(data4);
+
 count1 = cell2mat(count1);
 count2 = cell2mat(count2);
 count3 = cell2mat(count3);
+count4 = cell2mat(count4);
 
-data = [data1;data2;data3];
-count = [count1;count2;count3];
+data = [data1;data2;data3;data4];
+count = [count1;count2;count3;count4];
 
 % Filter
-data = data([1 3 4 5],:);
-count = count([1 3 4 5],:);
+data = data([1 3 end-1 end],:);
+count = count([1 3 end-1 end],:);
 
 figure(2)
 clf
