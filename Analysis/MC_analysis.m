@@ -15,7 +15,7 @@ clf
 boxplot(data','Whisker',2)
 xticklabels({'Auction','Voting'})
 % xticklabels({'Auction','Voting','Auction w/ privacy'})
-xticklabels({'1','10','20','100','200'})
+xticklabels({'0.1','1','10','100','1000'})
 a = get(gca,'XTickLabel');
 set(gca,'XTickLabel',a,'FontName','Times','fontsize',18)
 grid on
@@ -31,7 +31,7 @@ clf
 boxplot(count','Whisker',2)
 xticklabels({'Auction','Voting'})
 xticklabels({'Auction','Voting','Auction w/ privacy'})
-xticklabels({'1','10','20','100','200'})
+xticklabels({'0.1','1','10','100','1000'})
 a = get(gca,'XTickLabel');
 set(gca,'XTickLabel',a,'FontName','Times','fontsize',18)
 grid on
