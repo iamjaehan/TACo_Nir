@@ -6,20 +6,27 @@ include("World.jl")
 iterNum = 100;
 n = 4;
 
-Record = Array{Any,2}(undef,3,iterNum)
-Count = Array{Any,2}(undef,3,iterNum)
+Record = Array{Any,2}(undef,5,iterNum)
+Count = Array{Any,2}(undef,5,iterNum)
 for i = 1:iterNum
     # seed = 17095
     seed = rand(1:10000)
-    out1 = RunSim(n,1,seed,Auction(),matWrite=false)
-    out2 = RunSim(n,1,seed,Voting(),matWrite=false)
-    out3 = RunSim(n,1,seed,Auction(),matWrite=false,usePrivateInfo=false)
+    out1 = RunSim(n,1,seed,Auction(),matWrite=false, disc = 0.05)
+    out2 = RunSim(n,1,seed,Auction(),matWrite=false, disc = 0.1)
+    # out3 = RunSim(n,1,seed,Auction(),matWrite=false,usePrivateInfo=false)
+    out3 = RunSim(n,1,seed,Auction(),matWrite=false, disc = 1)
+    out4 = RunSim(n,1,seed,Auction(),matWrite=false, disc = 100)
+    out5 = RunSim(n,1,seed,Auction(),matWrite=false, disc = 1000)
     Record[1,i] = out1.optGap
     Record[2,i] = out2.optGap
     Record[3,i] = out3.optGap
+    Record[4,i] = out4.optGap
+    Record[5,i] = out5.optGap
     Count[1,i] = out1.count
     Count[2,i] = out2.count
     Count[3,i] = out3.count
+    Count[4,i] = out4.count
+    Count[5,i] = out5.count
     println("Iter $(i) out of $(iterNum) done!")
 end
 

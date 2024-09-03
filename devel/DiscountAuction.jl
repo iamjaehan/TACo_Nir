@@ -1,7 +1,7 @@
 using datfm
 
 global discount = 10
-global increment = 1.5
+global increment = 1
 global topN = 1
 # global nextBidderProtocol = LeastFavorNextBidder() # LeastFavorNextBidder, OrderTypeNextBidder
 global nextBidderProtocol = OrderTypeNextBidder()
@@ -47,7 +47,7 @@ function UpdatePayList(payList, plIdx, bidIdx, privateInfo)
     return payList
 end
 
-function RunDiscAuction(gameInfo, NashList, privateInfo)
+function RunDiscAuction(gameInfo, NashList, privateInfo, disc)
     n = gameInfo.n
     nNash = length(NashList)
     assignList = zeros(n)
@@ -55,11 +55,13 @@ function RunDiscAuction(gameInfo, NashList, privateInfo)
     offerList = zeros(n,nNash) # Choice [i] discounted by ~
     payList = zeros(n,nNash) # Paid by whom[i] for the choice [j]
     priceList = costList
+    global discount = disc
     
     count = 0
     while true
         count = count + 1
-        global discount = discount * increment^(count-1)
+        # global discount = discount * increment^(count-1)
+        global discount = discount * increment
         prevAssignList = deepcopy(assignList)
         # println("Iteration #$(count)")
 
@@ -77,8 +79,8 @@ function RunDiscAuction(gameInfo, NashList, privateInfo)
         assignList[bidder] = bestBidIdx[1]
         # println(map(x->Int64(x),assignList))
 
-        if iszero(assignList.-assignList[1]) || count > 1000
-            if count > 1000
+        if iszero(assignList.-assignList[1]) || count > 10000
+            if count > 10000
                 println("[Warning] Convergence Failure [Auction]")
             end
             break
