@@ -1,8 +1,6 @@
 using datfm
 
-global discount = 10
 global increment = 1
-global topN = 1
 # global nextBidderProtocol = LeastFavorNextBidder() # LeastFavorNextBidder, OrderTypeNextBidder
 global nextBidderProtocol = OrderTypeNextBidder()
 
