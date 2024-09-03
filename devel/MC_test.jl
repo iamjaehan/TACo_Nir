@@ -10,11 +10,11 @@ Record = Array{Any,2}(undef,5,iterNum)
 Count = Array{Any,2}(undef,5,iterNum)
 for i = 1:iterNum
     # seed = 17095
-    seed = rand(1:10000)
-    out1 = RunSim(n,1,seed,Auction(),matWrite=false, disc = 0.05)
-    out2 = RunSim(n,1,seed,Auction(),matWrite=false, disc = 0.1)
+    seed = rand(1:1000)
+    out1 = RunSim(n,1,seed,Auction(),matWrite=false, disc = 0.1)
+    out2 = RunSim(n,1,seed,Auction(),matWrite=false, disc = 1)
     # out3 = RunSim(n,1,seed,Auction(),matWrite=false,usePrivateInfo=false)
-    out3 = RunSim(n,1,seed,Auction(),matWrite=false, disc = 1)
+    out3 = RunSim(n,1,seed,Auction(),matWrite=false, disc = 10)
     out4 = RunSim(n,1,seed,Auction(),matWrite=false, disc = 100)
     out5 = RunSim(n,1,seed,Auction(),matWrite=false, disc = 1000)
     Record[1,i] = out1.optGap

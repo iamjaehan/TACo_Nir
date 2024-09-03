@@ -120,7 +120,7 @@ function RunSim(n, termStep, seed, prefSelectionStrategy::PrefSelectionStrategy;
     global choiceList = tempOut.choiceList
     count = tempOut.count
 
-    global sysOpt = ChoosePreference(SystemOptimal(), NashSet, gameInfo)
+    global sysOpt = ChoosePreference(SystemOptimal(), NashSet, gameInfo, privateInfo, disc)
     sysOpt = sysOpt[1]
 
     # Run scenario
