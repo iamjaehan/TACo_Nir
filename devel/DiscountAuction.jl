@@ -40,7 +40,7 @@ function UpdatePayList(payList, plIdx, bidIdx, privateInfo)
     n = size(payList)[1]
     for i = 1:length(bidIdx)
         localBid = bidIdx[i]
-        payList[plIdx,localBid] = payList[plIdx,localBid] + discount/i*n*privateInfo[plIdx]
+        payList[plIdx,localBid] = payList[plIdx,localBid] + discount/i*(n-1)*privateInfo[plIdx]
     end
     return payList
 end
@@ -52,7 +52,7 @@ function RunDiscAuction(gameInfo, NashList, privateInfo, disc)
     costList = GetCostList(gameInfo, NashList)
     offerList = zeros(n,nNash) # Choice [i] discounted by ~
     payList = zeros(n,nNash) # Paid by whom[i] for the choice [j]
-    priceList = costList
+    global priceList = deepcopy(costList)
     global discount = disc
     
     count = 0
@@ -72,7 +72,7 @@ function RunDiscAuction(gameInfo, NashList, privateInfo, disc)
         # Update payList
         payList = UpdatePayList(payList, bidder, bestBidIdx, privateInfo)
         # Update priceList
-        priceList = costList + payList - offerList
+        global priceList = costList + payList - offerList
         # Assign
         assignList[bidder] = bestBidIdx[1]
         # println(map(x->Int64(x),assignList))
@@ -86,5 +86,7 @@ function RunDiscAuction(gameInfo, NashList, privateInfo, disc)
     end
 
     bestIdx = Int64(assignList[1])
-    return (; bestIdx, count)
+    priceVec = priceList[:,bestIdx]
+    costVec = costList[:,bestIdx]
+    return (; bestIdx, count, priceVec, costVec)
 end

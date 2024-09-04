@@ -172,3 +172,16 @@ function EvalSystemScore(gameInfo, NashList, idx)
     end
     return systemScore
 end
+
+function EvalGini(gameInfo, cost)
+    n = gameInfo.n
+    avg = sum(cost)/n
+    temp = 0
+    for i = 1:n
+        for j = 1:n
+            temp = temp + abs(cost[i]-cost[j])
+        end
+    end
+    out = temp / (2*avg*n^2)
+    return out
+end

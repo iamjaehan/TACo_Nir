@@ -54,9 +54,11 @@ function ChoosePreference(c::Auction, nashSet, gameInfo, privateInfo, disc)
     out = RunDiscAuction(gameInfo, nashSet, privateInfo, disc)
     bestIdx = out.bestIdx
     count = out.count
+    priceVec = out.priceVec
+    costVec = out.costVec
     choiceList = fill(bestIdx,n)
     cumDist = zeros(NashNum)
-    return (;choiceList, count)
+    return (;choiceList, count, priceVec, costVec)
 end
 
 function SystemPreference(nashList, gameInfo)
@@ -119,6 +121,12 @@ function RunSim(n, termStep, seed, prefSelectionStrategy::PrefSelectionStrategy;
     tempOut = ChoosePreference(prefSelectionStrategy, NashSet, gameInfo, privateInfo, disc)
     global choiceList = tempOut.choiceList
     count = tempOut.count
+    if prefSelectionStrategy == Auction()
+        priceVec = tempOut.priceVec
+        fairness_private = EvalGini(gameInfo, priceVec)
+        costVec = tempOut.costVec
+        fairness_public = EvalGini(gameInfo, costVec)
+    end
 
     global sysOpt = ChoosePreference(SystemOptimal(), NashSet, gameInfo, privateInfo, disc)
     sysOpt = sysOpt[1]
@@ -185,7 +193,11 @@ function RunSim(n, termStep, seed, prefSelectionStrategy::PrefSelectionStrategy;
     # println(currentScore)
     optGap = (currentScore-optScore)/optScore
     if prefSelectionStrategy == Auction() || prefSelectionStrategy == Voting()
-        return (;optGap, count)
+        if prefSelectionStrategy == Voting()
+            return (;optGap, count)
+        else
+            return (;optGap, count, fairness_private, fairness_public)
+        end
     else
         return (;optGap)
     end
