@@ -12,7 +12,7 @@ fair_pri = cell2mat(fair_pri);
 figure(5)
 clf
 boxplot([fair_pub;fair_pri]','Whisker',2)
-xticklabels({'Public','Private+Public'})
+xticklabels({'Public','Revenue + Public cost'})
 a = get(gca,'XTickLabel');
 set(gca,'XTickLabel',a,'FontName','Times','fontsize',18)
 grid on
