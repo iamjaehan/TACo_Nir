@@ -5,6 +5,7 @@ using BlockArrays
 using Combinatorics
 using Statistics
 using Random
+using StatsBase
 
 include("Auction.jl")
 include("World.jl")
