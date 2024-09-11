@@ -45,7 +45,7 @@ function UpdatePayList(payList, plIdx, bidIdx, privateInfo)
     return payList
 end
 
-function RunDiscAuction(gameInfo, NashList, privateInfo, disc)
+function RunDiscAuction(gameInfo, NashList, privateInfo, disc, interrupt)
     n = gameInfo.n
     nNash = length(NashList)
     assignList = zeros(n)
@@ -54,6 +54,7 @@ function RunDiscAuction(gameInfo, NashList, privateInfo, disc)
     payList = zeros(n,nNash) # Paid by whom[i] for the choice [j]
     global priceList = deepcopy(costList)
     global discount = disc
+    isInterrupted = false
     
     count = 0
     while true
@@ -77,7 +78,10 @@ function RunDiscAuction(gameInfo, NashList, privateInfo, disc)
         assignList[bidder] = bestBidIdx[1]
         # println(map(x->Int64(x),assignList))
 
-        if iszero(assignList.-assignList[1]) || count > 10000
+        if iszero(assignList.-assignList[1]) || count > 10000 || count >= interrupt
+            if count == interrupt
+                isInterrupted = true
+            end
             if count > 10000
                 println("[Warning] Convergence Failure [Auction]")
             end
@@ -85,7 +89,11 @@ function RunDiscAuction(gameInfo, NashList, privateInfo, disc)
         end
     end
 
-    bestIdx = Int64(assignList[1])
+    if isInterrupted
+        bestIdx = Int64(mode(assignList))
+    else
+        bestIdx = Int64(assignList[1])
+    end
     priceVec = priceList[:,bestIdx]
     costVec = costList[:,bestIdx]
     return (; bestIdx, count, priceVec, costVec)
