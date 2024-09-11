@@ -11,6 +11,7 @@ include("World.jl")
 include("Vote.jl")
 include("DiscountAuction.jl")
 include("PrivateInfo.jl")
+include("RandomDemocracy.jl")
 
 function GenSeqSeed(n)
     if n>=10
@@ -168,7 +169,8 @@ function EvalSystemScore(gameInfo, NashList, idx)
     ψ = gameInfo.ψ
     systemScore = 0
     for i = 1:n
-        systemScore = systemScore + sqrt(CalcJ(NashList[idx][i],ψ,i))
+        # systemScore = systemScore + sqrt(CalcJ(NashList[idx][i],ψ,i))
+        systemScore = systemScore + CalcJ(NashList[idx][i],ψ,i)
     end
     return systemScore
 end

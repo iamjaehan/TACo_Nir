@@ -6,6 +6,7 @@ struct Selfish <: PrefSelectionStrategy end
 struct SystemOptimal <: PrefSelectionStrategy end
 struct Voting <: PrefSelectionStrategy end
 struct Auction <: PrefSelectionStrategy end
+struct RandomDemo <: PrefSelectionStrategy end
 
 function ChoosePreference(c::SystemOptimal, nashList, gameInfo, privateInfo, disc, interrupt) # Selection method
     n = gameInfo.n
@@ -19,7 +20,7 @@ function ChoosePreference(c::SystemOptimal, nashList, gameInfo, privateInfo, dis
         end
         choiceList = vcat(choiceList,findmin(SystemPreference(nashList, gameInfo))[2])
     end
-    return choiceList
+    return (;choiceList)
 end
 
 function ChoosePreference(c::Selfish, nashList, gameInfo, privateInfo, disc, interrupt)
@@ -44,7 +45,6 @@ function ChoosePreference(c::Voting, nashSet, gameInfo, privateInfo, disc, inter
     bestIdx = out.bestIdx
     count = out.count
     choiceList = fill(bestIdx,n)
-    cumDist = zeros(NashNum)
     return (;choiceList, count)
 end
 
@@ -57,8 +57,18 @@ function ChoosePreference(c::Auction, nashSet, gameInfo, privateInfo, disc, inte
     priceVec = out.priceVec
     costVec = out.costVec
     choiceList = fill(bestIdx,n)
-    cumDist = zeros(NashNum)
     return (;choiceList, count, priceVec, costVec)
+end
+
+function ChoosePreference(c::RandomDemo, nashSet, gameInfo, privateInfo, disc, interrupt)
+    n = gameInfo.n
+    NashNum = length(nashSet)
+    out = RunRD(gameInfo, nashSet)
+    bestIdx = out.choice
+    averageCost = out.averageCost
+    averageFairness = out.averageFairness
+    choiceList = fill(bestIdx,n)
+    return (;choiceList, averageCost, averageFairness)
 end
 
 function SystemPreference(nashList, gameInfo)
@@ -120,16 +130,21 @@ function RunSim(n, termStep, seed, prefSelectionStrategy::PrefSelectionStrategy;
     end
     tempOut = ChoosePreference(prefSelectionStrategy, NashSet, gameInfo, privateInfo, disc, interrupt)
     global choiceList = tempOut.choiceList
-    count = tempOut.count
     if prefSelectionStrategy == Auction()
         priceVec = tempOut.priceVec
         fairness_private = EvalGini(gameInfo, priceVec)
         costVec = tempOut.costVec
         fairness_public = EvalGini(gameInfo, costVec)
+        count = tempOut.count
+    elseif prefSelectionStrategy == Voting()
+        count = tempOut.count
+    elseif prefSelectionStrategy == RandomDemo()
+        averageCost = tempOut.averageCost
+        averageFairness = tempOut.averageFairness
     end
 
     global sysOpt = ChoosePreference(SystemOptimal(), NashSet, gameInfo, privateInfo, disc, interrupt)
-    sysOpt = sysOpt[1]
+    sysOpt = sysOpt.choiceList[1]
 
     # Run scenario
     for t in 1:simStep
@@ -186,7 +201,11 @@ function RunSim(n, termStep, seed, prefSelectionStrategy::PrefSelectionStrategy;
         ); version="v7.4")
     end
 
-    currentScore = EvalSystemScore(gameInfo, NashSet, choiceList[1])
+    if prefSelectionStrategy != RandomDemo()
+        currentScore = EvalSystemScore(gameInfo, NashSet, choiceList[1])
+    else
+        currentScore = averageCost
+    end
     optScore = EvalSystemScore(gameInfo, NashSet, sysOpt)
 
     # println(optScore)
@@ -194,11 +213,17 @@ function RunSim(n, termStep, seed, prefSelectionStrategy::PrefSelectionStrategy;
     optGap = (currentScore-optScore)/optScore
     if prefSelectionStrategy == Auction() || prefSelectionStrategy == Voting()
         if prefSelectionStrategy == Voting()
-            return (;optGap, count)
+            costList = GetCostList(gameInfo, NashSet)
+            fairness = EvalGini(gameInfo, costList[:,choiceList[1]])
+            return (;optGap, count, fairness)
         else
             return (;optGap, count, fairness_private, fairness_public)
         end
+    elseif prefSelectionStrategy == RandomDemo()
+        return (;optGap, averageCost, averageFairness)
     else
-        return (;optGap)
+        costList = GetCostList(gameInfo, NashSet)
+        fairness = EvalGini(gameInfo, costList[:,sysOpt])
+        return (;optGap, fairness)
     end
 end
