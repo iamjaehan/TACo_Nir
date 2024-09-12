@@ -59,8 +59,8 @@ function RunDiscAuction(gameInfo, NashList, privateInfo, disc, interrupt)
     count = 0
     while true
         count = count + 1
-        # global discount = discount * increment^(count-1)
-        global discount = discount * increment
+        global discount = discount * increment^(count-1)
+        # global discount = discount + increment
         prevAssignList = deepcopy(assignList)
         # println("Iteration #$(count)")
 
@@ -78,11 +78,11 @@ function RunDiscAuction(gameInfo, NashList, privateInfo, disc, interrupt)
         assignList[bidder] = bestBidIdx[1]
         # println(map(x->Int64(x),assignList))
 
-        if iszero(assignList.-assignList[1]) || count > 10000 || count >= interrupt
+        if iszero(assignList.-assignList[1]) || count > 100000 || count >= interrupt
             if count == interrupt
                 isInterrupted = true
             end
-            if count > 10000
+            if count > 100000
                 println("[Warning] Convergence Failure [Auction]")
             end
             break

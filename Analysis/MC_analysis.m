@@ -4,23 +4,23 @@ data = load("MC_faster_iteration.mat");
 
 
 %%%
-data = load("MC_private_public.mat");
-fair_pub = data.Fair_pub;
-fair_pri = data.Fair_pri;
-fair_pub = cell2mat(fair_pub);
-fair_pri = cell2mat(fair_pri);
-figure(5)
-clf
-boxplot([fair_pub;fair_pri]','Whisker',2)
-xticklabels({'Public','Revenue + Public cost'})
-a = get(gca,'XTickLabel');
-set(gca,'XTickLabel',a,'FontName','Times','fontsize',18)
-grid on
-ylabel("Gini index",'FontName','Times','FontSize',18)
-title("Monte-Carlo test (4-player)","FontName",'Times','FontSize',18)
-ylim([0 inf])
-xlabel("Fairness type",'FontName','Times','FontSize',18)
-saveas(gcf,"Fairness.png")
+% data = load("MC_private_public.mat");
+% fair_pub = data.Fair_pub;
+% fair_pri = data.Fair_pri;
+% fair_pub = cell2mat(fair_pub);
+% fair_pri = cell2mat(fair_pri);
+% figure(5)
+% clf
+% boxplot([fair_pub;fair_pri]','Whisker',2)
+% xticklabels({'Public','Revenue + Public cost'})
+% a = get(gca,'XTickLabel');
+% set(gca,'XTickLabel',a,'FontName','Times','fontsize',18)
+% grid on
+% ylabel("Gini index",'FontName','Times','FontSize',18)
+% title("Monte-Carlo test (4-player)","FontName",'Times','FontSize',18)
+% ylim([0 inf])
+% xlabel("Fairness type",'FontName','Times','FontSize',18)
+% saveas(gcf,"Fairness.png")
 %%%
 
 count = data.Count;

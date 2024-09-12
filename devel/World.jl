@@ -217,13 +217,13 @@ function RunSim(n, termStep, seed, prefSelectionStrategy::PrefSelectionStrategy;
             fairness = EvalGini(gameInfo, costList[:,choiceList[1]])
             return (;optGap, count, fairness)
         else
-            return (;optGap, count, fairness_private, fairness_public)
+            return (;optGap, count, fairness = fairness_private, fairness_public)
         end
     elseif prefSelectionStrategy == RandomDemo()
-        return (;optGap, averageCost, averageFairness)
+        return (;optGap, count = 1, averageCost, fairness = averageFairness)
     else
         costList = GetCostList(gameInfo, NashSet)
         fairness = EvalGini(gameInfo, costList[:,sysOpt])
-        return (;optGap, fairness)
+        return (;optGap, count = 1, fairness)
     end
 end

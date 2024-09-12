@@ -2,7 +2,7 @@ using datfm
 using Clustering: dbscan, DbscanResult
 
 # Clustering param.
-global radius = 10
+global radius = 1
 global γ = 0.8 # radius reduction rate
 
 function DetectComm(NashSet, idx)
