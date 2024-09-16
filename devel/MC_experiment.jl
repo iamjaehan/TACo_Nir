@@ -1,5 +1,6 @@
 using datfm
 using MAT
+using ProgressBars
 
 include("World.jl")
 include("0_GameSetup.jl")
