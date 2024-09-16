@@ -4,7 +4,7 @@ using MAT
 include("World.jl")
 include("0_GameSetup.jl")
 
-iterNum = 100
+iterNum = 1000
 n = 4
 testCaseNum = 10
 
@@ -15,7 +15,8 @@ Count = deepcopy(Record)
 
 outList = Array{Any}(undef,testCaseNum,iterNum)
 
-for i = 1:iterNum
+# for i = 1:iterNum
+for i in ProgressBar(1:iterNum)
     # seed = 17095
     seed = rand(1:1000)
     global topN = 1
@@ -38,7 +39,7 @@ for i = 1:iterNum
         Fairness[j,i] = outList[j,i].fairness
     end
 
-    println("Iter $(i) out of $(iterNum) done!")
+    # println("Iter $(i) out of $(iterNum) done!")
 end
 
 matwrite("Analysis/[0]_Experiment_set6.mat",Dict(
