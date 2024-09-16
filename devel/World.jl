@@ -41,7 +41,7 @@ end
 function ChoosePreference(c::Voting, nashSet, gameInfo, privateInfo, disc, interrupt)
     n = gameInfo.n
     NashNum = length(nashSet)
-    out = RunVote(gameInfo, nashSet, privateInfo)
+    out = RunVote(gameInfo, nashSet)
     bestIdx = out.bestIdx
     count = out.count
     choiceList = fill(bestIdx,n)
@@ -123,11 +123,11 @@ function RunSim(n, termStep, seed, prefSelectionStrategy::PrefSelectionStrategy;
     global cumDist = zeros(NashNum)
     # Select their preference
     if usePrivateInfo
-        GenPrivatePref(gameInfo, seed)
-        privateInfo = GetPrivatePref()
+        GenPrivatePref(gameInfo, seed, disc)
     else
-        privateInfo = ones(n)
+        GenFakePrivatePref(gameInfo, seed, disc)
     end
+    privateInfo = GetPrivatePref()
     tempOut = ChoosePreference(prefSelectionStrategy, NashSet, gameInfo, privateInfo, disc, interrupt)
     global choiceList = tempOut.choiceList
     if prefSelectionStrategy == Auction()

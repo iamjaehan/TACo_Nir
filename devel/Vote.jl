@@ -70,7 +70,7 @@ function IdxDecode(idxHistory, idx)
     return idx
 end
 
-function RunVote(gameInfo, NashSet, privateInfo)
+function RunVote(gameInfo, NashSet)
     n = gameInfo.n
     nNash = length(NashSet)
     clusterInfo = Vector{DbscanResult}(undef, n)

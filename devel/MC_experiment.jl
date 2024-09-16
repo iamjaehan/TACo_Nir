@@ -22,8 +22,8 @@ for i = 1:iterNum
 
     outList[1,i] = RunSim(n, 0, seed, Auction(), matWrite=false, disc=1, interrupt=Inf)
     outList[2,i] = RunSim(n, 0, seed, Auction(), matWrite=false, disc=10, interrupt=Inf)
-    outList[3,i] = RunSim(n, 0, seed, Auction(), matWrite=false, disc=100, interrupt=Inf)
-    outList[4,i] = RunSim(n, 0, seed, Auction(), matWrite=false, disc=10, interrupt=30)
+    outList[3,i] = RunSim(n, 0, seed, Auction(), matWrite=false, disc=10, interrupt=Inf, usePrivateInfo=false)
+    outList[4,i] = RunSim(n, 0, seed, Auction(), matWrite=false, disc=10, interrupt=10)
     outList[5,i] = RunSim(n, 0, seed, Auction(), matWrite=false, disc=10, interrupt=60)
     outList[6,i] = RunSim(n, 0, seed, Voting(), matWrite=false, disc=10, interrupt=Inf)
     outList[7,i] = RunSim(n, 0, seed, SystemOptimal(), matWrite=false, disc=10, interrupt=Inf)
@@ -38,7 +38,7 @@ for i = 1:iterNum
     println("Iter $(i) out of $(iterNum) done!")
 end
 
-matwrite("Analysis/[0]_Experiment_set4.mat",Dict(
+matwrite("Analysis/[0]_Experiment_set5.mat",Dict(
     "OptGap" => OptGap,
     "Count" => Count,
     "Fairness" => Fairness
