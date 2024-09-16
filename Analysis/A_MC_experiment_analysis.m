@@ -2,17 +2,20 @@
 %2 - interrupt value 바꿈
 %3 - increment 적용
 %4 - multiply decrement 적용
+%5 - trade 용량 적용 - test (30 trials)
+%6 - Total set test (100 trials)
 % data = load("[0]_Experiment_set1.mat");
-data = load("[0]_Experiment_set5.mat");
+data = load("[0]_Experiment_set6.mat");
 
 optGap = cell2mat(data.OptGap);
 count = cell2mat(data.Count);
 fairness = cell2mat(data.Fairness);
 
-xtickLabelSet = {'Auction (small)','Auction','Auction (large)','Auction (int 1c)', 'Auction (int 3c)', 'Voting', 'System Optimal', 'Random Demo'};
+xtickLabelSet = {'Auction (step 1)','Auction (step 10)','Auction (step 100)','Auction (int 60)', 'Auction (int 30)', 'Auction (int n+1)',...
+    'Voting', 'System Optimal', 'System Fair', 'Random Demo'};
 
 %% param
-whiskerVal = 100;
+whiskerVal = 1;
 
 %% Experiment #1: Optgap comparison
 figure(1)

@@ -3,16 +3,17 @@ using datfm
 global increment = 1
 # global nextBidderProtocol = LeastFavorNextBidder() # LeastFavorNextBidder, OrderTypeNextBidder
 global nextBidderProtocol = OrderTypeNextBidder()
+termLimit = 10000
 
 abstract type NextBidderProtocol end
 struct OrderTypeNextBidder <: NextBidderProtocol end
 struct LeastFavorNextBidder <: NextBidderProtocol end
 
 ## Debugging history
-global offerHist = Vector{Any}(undef,100000)
-global payHist = Vector{Any}(undef,100000)
-global costHist = Vector{Any}(undef,100000)
-global priceHist = Vector{Any}(undef,100000)
+global offerHist = Vector{Any}(undef,termLimit)
+global payHist = Vector{Any}(undef,termLimit)
+global costHist = Vector{Any}(undef,termLimit)
+global priceHist = Vector{Any}(undef,termLimit)
 
 function WhoIsNext(c::OrderTypeNextBidder, n, counter)
     return (counter-1)%n + 1
@@ -130,11 +131,11 @@ function RunDiscAuction(gameInfo, NashList, privateInfo, disc, interrupt)
         global payHist[count] = deepcopy(payUnitList)
         global priceHist[count] = deepcopy(priceList)
 
-        if iszero(assignList.-assignList[1]) || count == 100000 || count >= interrupt
+        if iszero(assignList.-assignList[1]) || count == termLimit || count >= interrupt
             if count == interrupt
                 isInterrupted = true
             end
-            if count == 100000
+            if count == termLimit
                 println("[Warning] Convergence Failure [Auction]")
             end
             break
