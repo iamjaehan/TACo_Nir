@@ -54,7 +54,7 @@ function UpdatePayList(payList, plIdx, bidIdx, privatePref)
     n = size(payList)[1]
     for i = 1:length(bidIdx)
         localBid = bidIdx[i]
-        payList[plIdx,localBid] = payList[plIdx,localBid] + discount/i*(n-1)*privatePref[plIdx]
+        payList[plIdx,localBid] = payList[plIdx,localBid] + discount/i*n*privatePref[plIdx]
     end
     return payList
 end
