@@ -209,7 +209,7 @@ function RunSim(n, termStep, seed, prefSelectionStrategy::PrefSelectionStrategy;
     # println("============")
     
     if matWrite
-        matwrite("Analysis/eHistory_similarity.mat",Dict(
+        matwrite("Analysis/eHistory.mat",Dict(
             "eHistory" => eHistory,
             "psi" => ψ
         ); version="v7.4")
