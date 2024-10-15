@@ -15,6 +15,7 @@ global offerValHist = Vector{Any}(undef,termLimit)
 global payValHist = Vector{Any}(undef,termLimit)
 global priceHist = Vector{Any}(undef,termLimit)
 global costHist = Vector{Any}(undef,1)
+global choiceHist = Vector{Any}(undef,termLimit)
 
 function WhoIsNext(c::OrderTypeNextBidder, n, counter)
     return (counter-2)%n + 1
@@ -46,7 +47,7 @@ function UpdateOfferList(n, offerList, plIdx, bidIdx, privatePref)
         for j = 1:n
             offerList[j,localBid] = offerList[j,localBid] .+ discount/i*privatePref[j]
         end
-        offerList[plIdx,localBid] = offerList[plIdx,localBid] .- discount/i*privatePref[plIdx]
+        # offerList[plIdx,localBid] = offerList[plIdx,localBid] .- discount/i*privatePref[plIdx]
     end
     return offerList
 end
@@ -66,7 +67,7 @@ function UpdateOfferUnitList(n, offerUnitList, plIdx, bidIdx, privatePref)
         for j = 1:n
             offerUnitList[j,localBid] = offerUnitList[j,localBid] .+ discount/i
         end
-        offerUnitList[plIdx,localBid] = offerUnitList[plIdx,localBid] .- discount/i
+        # offerUnitList[plIdx,localBid] = offerUnitList[plIdx,localBid] .- discount/i
     end
     return offerUnitList
 end
@@ -75,7 +76,7 @@ function UpdatePayUnitList(payUnitList, plIdx, bidIdx, privatePref)
     n = size(payUnitList)[1]
     for i = 1:length(bidIdx)
         localBid = bidIdx[i]
-        payUnitList[plIdx,localBid] = payUnitList[plIdx,localBid] + discount/i*(n+1)
+        payUnitList[plIdx,localBid] = payUnitList[plIdx,localBid] + discount/i*(n)
     end
     return payUnitList
 end
@@ -128,8 +129,9 @@ function RunDiscAuction(gameInfo, NashList, privateInfo, disc, interrupt)
         global ioUnitList = payUnitList
         # Assign
         assignList[bidder] = bestBidIdx[1]
+        global choiceHist[count-1] = deepcopy(assignList)
         # println(map(x->Int64(x),assignList))
-
+        
         global offerHist[count] = deepcopy(offerUnitList)
         global payHist[count] = deepcopy(payUnitList)
         global priceHist[count] = deepcopy(priceList)
@@ -141,8 +143,8 @@ function RunDiscAuction(gameInfo, NashList, privateInfo, disc, interrupt)
                 isInterrupted = true
             end
             if count == termLimit
-                println("[Warning] Convergence Failure [Auction] seed: $(seed)")
-                println(seed)
+                # println("[Warning] Convergence Failure [Auction] seed: $(seed)")
+                # println(seed)
             end
             break
         end
@@ -150,15 +152,15 @@ function RunDiscAuction(gameInfo, NashList, privateInfo, disc, interrupt)
 
     # payHist = payHist[1:count]
 
-    # global offerHist = offerHist[1:count]
-    # global payHist = payHist[1:count]
-    # global priceHist = priceHist[1:count]
-    # matwrite("Analysis/[0]HistTest.mat", Dict(
-    # "offerHist" => offerHist,
-    # "payHist" => payHist,
-    # "priceHist" => priceHist,
-    # "costHist" => costHist
-    # ); version="v7.4")
+    global offerHist = offerHist[1:count]
+    global payHist = payHist[1:count]
+    global priceHist = priceHist[1:count]
+    matwrite("Analysis/[0]HistTest.mat", Dict(
+    "offerHist" => offerHist,
+    "payHist" => payHist,
+    "priceHist" => priceHist,
+    "costHist" => costHist
+    ); version="v7.4")
 
     if isInterrupted
         bestIdx = Int64(mode(assignList))

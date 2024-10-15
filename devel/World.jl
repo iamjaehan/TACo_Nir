@@ -112,7 +112,7 @@ end
 function RunSim(n, termStep, seed, prefSelectionStrategy::PrefSelectionStrategy; matWrite=true, usePrivateInfo=true,
     disc = 10, interrupt = Inf)
     dt = 1 #ADS-B update rate
-    simT = 80
+    simT = 1000
     maxDv = 1 * dt
 
     simStep = simT/dt
@@ -163,8 +163,14 @@ function RunSim(n, termStep, seed, prefSelectionStrategy::PrefSelectionStrategy;
     # Run scenario
     for t in 1:simStep
         # Action for dt
+        if t <= count-1
+            choiceThisTime = choiceHist[Int(t)]
+            choiceList = deepcopy([Int64(x) for x in choiceThisTime])
+        end
         for i in 1:n
-            e[i], v[i] = EvolveDynamics(e[i], v[i], eInit[i] + NashSet[choiceList[i]][i], maxDv, dt)
+            if choiceList[i] != 0
+                e[i], v[i] = EvolveDynamics(e[i], v[i], eInit[i] + NashSet[choiceList[i]][i], maxDv, dt)
+            end
         end
         etemp = deepcopy(e)
         eHistory = vcat(eHistory,[etemp])
@@ -208,9 +214,11 @@ function RunSim(n, termStep, seed, prefSelectionStrategy::PrefSelectionStrategy;
     # println(systemOptIdx)
     # println("============")
     
+    println(count)
     if matWrite
         matwrite("Analysis/eHistory.mat",Dict(
             "eHistory" => eHistory,
+            "choiceHist" => choiceHist[1:count-1],
             "psi" => ψ
         ); version="v7.4")
     end

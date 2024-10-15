@@ -34,7 +34,7 @@ end
 %%%%%%%
 
 if run(2) == 1
-outRaw = load("eHistory_similarity.mat");
+outRaw = load("eHistory.mat");
 out = outRaw.eHistory;
 dataLen = length(out);
 n = length(out{1});
@@ -55,10 +55,18 @@ for i = 1:n
     cList(i,:) = cMap(idx,:);
 end
 
+out = outRaw.choiceHist;
+data2 = zeros(dataLen,n);
+dataLen2 = length(out);
+for i = 1:dataLen2
+    data2(i,:) = outRaw.choiceHist{i};
+end
+
 figure(21)
 clf
 for i = 1:n
     plot(data(:,i),-(1:dataLen),'o:','Color',cList(i,:))
+    % plot(data2(:,i),-(1:dataLen),'.','Color',cList(i,:))
     hold on
     text(data(1,i),0.1,"#"+num2str(i))
 end
@@ -67,5 +75,19 @@ colormap("jet")
 cb = colorbar;
 caxis([min(psi) max(psi)])
 ylabel(cb,'urgency','FontSize',15)
+
+out = outRaw.choiceHist;
+dataLen = length(out);
+n = length(out{1});
+data = zeros(dataLen,n);
+for i = 1:dataLen
+    data(i,:) = out{i};
+end
+figure(22)
+clf
+for i = 1:n
+    plot(data(:,i),-(1:dataLen),'o:','Color',cList(i,:))
+    hold on
+end
 
 end
