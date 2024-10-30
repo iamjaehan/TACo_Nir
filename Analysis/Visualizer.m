@@ -90,4 +90,10 @@ for i = 1:n
     hold on
 end
 
+potential = outRaw.potentialHist;
+potential = cell2mat(potential);
+
+figure(23)
+clf
+plot(-potential)
 end

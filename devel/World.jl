@@ -163,10 +163,10 @@ function RunSim(n, termStep, seed, prefSelectionStrategy::PrefSelectionStrategy;
     # Run scenario
     for t in 1:simStep
         # Action for dt
-        if t <= count-1
-            choiceThisTime = choiceHist[Int(t)]
-            choiceList = deepcopy([Int64(x) for x in choiceThisTime])
-        end
+        # if t <= count-1
+        #     choiceThisTime = choiceHist[Int(t)]
+        #     choiceList = deepcopy([Int64(x) for x in choiceThisTime])
+        # end
         for i in 1:n
             if choiceList[i] != 0
                 e[i], v[i] = EvolveDynamics(e[i], v[i], eInit[i] + NashSet[choiceList[i]][i], maxDv, dt)
@@ -214,11 +214,12 @@ function RunSim(n, termStep, seed, prefSelectionStrategy::PrefSelectionStrategy;
     # println(systemOptIdx)
     # println("============")
     
-    println(count)
+    # println(count)
     if matWrite
         matwrite("Analysis/eHistory.mat",Dict(
             "eHistory" => eHistory,
             "choiceHist" => choiceHist[1:count-1],
+            "potentialHist" => potentialHist[1:count-1],
             "psi" => ψ
         ); version="v7.4")
     end

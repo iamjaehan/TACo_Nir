@@ -58,9 +58,9 @@ function RunAuction(gameInfo, NashList)
         b = CalcBidIncrease(costList[bidder,:], priceList, firstMargin, firstBidIdx)
         
         if choiceTakenList[firstBidIdx] == true
-            println(firstBidIdx)
-            println(assignList)
-            println(choiceTakenList)
+            # println(firstBidIdx)
+            # println(assignList)
+            # println(choiceTakenList)
             whoTookIt = findall(x->x==firstBidIdx, assignList)[1]
             assignList[whoTookIt] = 0
         end
@@ -68,9 +68,9 @@ function RunAuction(gameInfo, NashList)
         choiceTakenList = UpdateChoiceTakenList(assignList, nNash)
         priceList[firstBidIdx] = priceList[firstBidIdx] + b
 
-        println(prevAssignList)
-        println(assignList)
-        println("ooo")
+        # println(prevAssignList)
+        # println(assignList)
+        # println("ooo")
 
         if prevAssignList == assignList && isempty(findall(x->x==0, assignList))
             break
