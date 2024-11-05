@@ -58,8 +58,6 @@ for i in ProgressBar(1:iterNum)
         Count[j,i] = outList[j,i].count
         Fairness[j,i] = outList[j,i].fairness
     end
-
-    # println("Iter $(i) out of $(iterNum) done!")
 end
 
 matwrite("Analysis/[0]_Experiment_noiseTest.mat",Dict(

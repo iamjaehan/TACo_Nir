@@ -2,7 +2,7 @@ using datfm
 
 # global nextBidderProtocol = LeastFavorNextBidder() # LeastFavorNextBidder, OrderTypeNextBidder
 global nextBidderProtocol = OrderTypeNextBidder()
-termLimit = 100000
+termLimit = 10000
 
 abstract type NextBidderProtocol end
 struct OrderTypeNextBidder <: NextBidderProtocol end
@@ -147,9 +147,10 @@ function RunDiscAuction(gameInfo, NashList, privateInfo, disc, interrupt)
                 isInterrupted = true
             end
             if count == termLimit
-                println("[Warning] Convergence Failure [Auction] seed: $(seed),: disc: $(discount)")
+                # println("[Warning] Convergence Failure [Auction] seed: $(seed),: disc: $(discount)")
+                break
             end
-            break
+            # break
         end
     end
 
@@ -158,12 +159,12 @@ function RunDiscAuction(gameInfo, NashList, privateInfo, disc, interrupt)
     global offerHist = offerHist[1:count]
     global payHist = payHist[1:count]
     global priceHist = priceHist[1:count]
-    # matwrite("Analysis/[0]HistTest.mat", Dict(
-    # "offerHist" => offerHist,
-    # "payHist" => payHist,
-    # "priceHist" => priceHist,
-    # "costHist" => costHist
-    # ); version="v7.4")
+    matwrite("Analysis/[0]HistTest.mat", Dict(
+    "offerHist" => offerHist,
+    "payHist" => payHist,
+    "priceHist" => priceHist,
+    "costHist" => costHist
+    ); version="v7.4")
 
     if isInterrupted
         bestIdx = Int64(mode(assignList))
