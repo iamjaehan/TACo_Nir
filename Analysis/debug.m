@@ -60,5 +60,5 @@ end
 plot(rec(1,:,t1),rec(1,:,t2),'bo--')
 plot(rec(2,:,t1),rec(2,:,t2),'ro--')
 plot(rec(3,:,t1),rec(3,:,t2),'mo--')
-plot(rec(4,:,t1),rec(4,:,t2),'go--')3
+plot(rec(4,:,t1),rec(4,:,t2),'go--')
 axis equal
