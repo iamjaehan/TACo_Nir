@@ -2,6 +2,9 @@ using datfm
 
 # global nextBidderProtocol = LeastFavorNextBidder() # LeastFavorNextBidder, OrderTypeNextBidder
 global nextBidderProtocol = OrderTypeNextBidder()
+global increment = 1
+global topN = 1
+global decrement = 0.8
 termLimit = 10000
 
 abstract type NextBidderProtocol end
@@ -17,19 +20,7 @@ function WhoIsNext(c::LeastFavorNextBidder, n, counter)
 end
 
 function GetBestBid(priceList, ioUnitList, unitLimit)
-    tempPriceList = deepcopy(priceList)
-    count = 0
-    for i = 1:length(priceList)
-        if ioUnitList[i] + discount > unitLimit
-            count = count + 1
-            tempPriceList[i] = tempPriceList[i] + M
-            # println("[Warning] Partial overbidding")
-        end
-    end
-    if count == length(priceList)
-        # println("[Warning] Overbidding!")
-    end
-    return partialsortperm(tempPriceList,1:topN,rev=false)
+    return partialsortperm(priceList,1:topN,rev=false)
 end
 
 function UpdateOfferList(n, offerList, plIdx, bidIdx, privatePref)
@@ -74,14 +65,14 @@ end
 
 function RunDiscAuction(gameInfo, NashList, privateInfo, disc, interrupt)
     ## Debugging history
-    global offerHist = Vector{Any}(undef,termLimit)
-    global payHist = Vector{Any}(undef,termLimit)
-    global offerValHist = Vector{Any}(undef,termLimit)
-    global payValHist = Vector{Any}(undef,termLimit)
-    global priceHist = Vector{Any}(undef,termLimit)
-    global costHist = Vector{Any}(undef,1)
-    global choiceHist = Vector{Any}(undef,termLimit)
-    global potentialHist = Vector{Any}(undef,termLimit)
+    # global offerHist = Vector{Any}(undef,termLimit)
+    # global payHist = Vector{Any}(undef,termLimit)
+    # global offerValHist = Vector{Any}(undef,termLimit)
+    # global payValHist = Vector{Any}(undef,termLimit)
+    # global priceHist = Vector{Any}(undef,termLimit)
+    # global costHist = Vector{Any}(undef,1)
+    # global choiceHist = Vector{Any}(undef,termLimit)
+    # global potentialHist = Vector{Any}(undef,termLimit)
 
     n = gameInfo.n
     privatePref = privateInfo.privatePref
@@ -97,27 +88,43 @@ function RunDiscAuction(gameInfo, NashList, privateInfo, disc, interrupt)
     global ioUnitList = deepcopy(costList)
     global discount = disc
     global M = 100 * maximum(costList)
+    global tupleList = Vector{Any}(undef,0)
     isInterrupted = false
 
-    global offerHist[1] = deepcopy(offerList)
-    global payHist[1] = deepcopy(payList)
-    global costHist[1] = deepcopy(costList)
-    global priceHist[1] = deepcopy(priceList)
-    global payValHist[1] = deepcopy(payList)
-    global offerValHist[1] = deepcopy(offerHist)
-    global potentialHist[1] = deepcopy(sum(costList))
+    # global offerHist[1] = deepcopy(offerList)
+    # global payHist[1] = deepcopy(payList)
+    # global costHist[1] = deepcopy(costList)
+    # global priceHist[1] = deepcopy(priceList)
+    # global payValHist[1] = deepcopy(payList)
+    # global offerValHist[1] = deepcopy(offerHist)
+    # global potentialHist[1] = deepcopy(sum(costList))
     
     count = 1
     while true
         count = count + 1
         # global discount = discount * increment^(count%n+1-2)
-        global discount = discount * (rand()*discVar+1-discVar/2)
+        # global discount = discount * (rand()*discVar+1-discVar/2)
         # global discount = discount * increment
-        prevAssignList = deepcopy(assignList)
+        # prevAssignList = deepcopy(assignList)
         # println("Iteration #$(count)")
 
         # Choose bidder
-        bidder = WhoIsNext(nextBidderProtocol, n, count)
+        bidder = WhoIsNext(nextBidderProtocol, n, count)    
+        # Detect Cycle
+        bidderProfitTuple = (bidder,priceList)
+        if IsCycleDetected(tupleList, bidderProfitTuple)
+            global cycleTuple = GetCycleInfo(tupleList, bidderProfitTuple)
+            global discount = discount * decrement
+            tupleList = Vector{Any}(undef,0)
+            println("Cycle Detected! @ count: $(count)")
+            
+            # Check termination condition
+            if IsEpsilonTermination(cycleTuple)
+                break
+            end
+        end
+        # Remember the bidder-profit tuple
+        tupleList = vcat(tupleList,bidderProfitTuple)
         # Choose the best choice
         bestBidIdx = GetBestBid(priceList[bidder,:], ioUnitList[bidder,:], privateUnitLimit[bidder])
         # Update offerList
@@ -132,39 +139,50 @@ function RunDiscAuction(gameInfo, NashList, privateInfo, disc, interrupt)
         global ioUnitList = payUnitList
         # Assign
         assignList[bidder] = bestBidIdx[1]
-        global choiceHist[count-1] = deepcopy(assignList)
+        # global choiceHist[count-1] = deepcopy(assignList)
         # println(map(x->Int64(x),assignList))
 
-        global potentialHist[count] = deepcopy(sum(priceList))
-        global offerHist[count] = deepcopy(offerUnitList)
-        global payHist[count] = deepcopy(payUnitList)
-        global priceHist[count] = deepcopy(priceList)
-        global payValHist[count] = deepcopy(payList)
-        global offerValHist[count] = deepcopy(offerList)
-
-        if iszero(assignList.-assignList[1]) || count == termLimit || count >= interrupt
+        # Check Abnormal Termination Condition
+        if count == termLimit || count >= interrupt
             if count == interrupt
                 isInterrupted = true
             end
             if count == termLimit
                 # println("[Warning] Convergence Failure [Auction] seed: $(seed),: disc: $(discount)")
-                break
             end
-            # break
+            break
         end
+
+        # global potentialHist[count] = deepcopy(sum(priceList))
+        # global offerHist[count] = deepcopy(offerUnitList)
+        # global payHist[count] = deepcopy(payUnitList)
+        # global priceHist[count] = deepcopy(priceList)
+        # global payValHist[count] = deepcopy(payList)
+        # global offerValHist[count] = deepcopy(offerList)
+
+        # if iszero(assignList.-assignList[1]) || count == termLimit || count >= interrupt
+        #     if count == interrupt
+        #         isInterrupted = true
+        #     end
+        #     if count == termLimit
+        #         # println("[Warning] Convergence Failure [Auction] seed: $(seed),: disc: $(discount)")
+        #         break
+        #     end
+        #     break
+        # end
     end
 
     # payHist = payHist[1:count]
 
-    global offerHist = offerHist[1:count]
-    global payHist = payHist[1:count]
-    global priceHist = priceHist[1:count]
-    matwrite("Analysis/[0]HistTest.mat", Dict(
-    "offerHist" => offerHist,
-    "payHist" => payHist,
-    "priceHist" => priceHist,
-    "costHist" => costHist
-    ); version="v7.4")
+    # global offerHist = offerHist[1:count]
+    # global payHist = payHist[1:count]
+    # global priceHist = priceHist[1:count]
+    # matwrite("Analysis/[0]HistTest.mat", Dict(
+    # "offerHist" => offerHist,
+    # "payHist" => payHist,
+    # "priceHist" => priceHist,
+    # "costHist" => costHist
+    # ); version="v7.4")
 
     if isInterrupted
         bestIdx = Int64(mode(assignList))

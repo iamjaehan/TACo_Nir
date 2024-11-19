@@ -188,3 +188,21 @@ function EvalGini(gameInfo, cost)
     out = temp / (2*avg*n^2)
     return out
 end
+
+function IsCycleDetected(tupleList, bidderProfitTuple)
+    # println(bidderProfitTuple)
+    # println(tupleList)
+    return in(bidderProfitTuple, tupleList)
+end
+
+function GetCycleInfo(tupleList, bidderProfitTuple)
+    idx = findall(x->x==bidderProfitTuple,tupleList)[1]
+    len = length(tupleList)
+    cycleLength = len-idx+1;
+    cycleTuple = tupleList[end-cycleLength+1:end]
+    return cycleTuple
+end
+
+function IsEpsilonTermination(cycleTuple)
+    return false
+end

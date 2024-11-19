@@ -24,7 +24,6 @@ function SearchCorr(r,n,λ,Δ)
 
     solverTime = @elapsed (; primals, variables, status, info) = solve(problem, [0])
     score = CalcEFJ(primals,m^n,n,Δ)
-    # score = CalcJ(primals,C,m,n)
 
     fairScore = EvalFairness(primals[1:m^n], C, m, n, Δ)
     giniScore = EvalGini(primals[1:m^n], C, m, n, Δ)
