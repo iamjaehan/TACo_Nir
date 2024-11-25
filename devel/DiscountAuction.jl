@@ -65,14 +65,14 @@ end
 
 function RunDiscAuction(gameInfo, NashList, privateInfo, disc, interrupt)
     ## Debugging history
-    # global offerHist = Vector{Any}(undef,termLimit)
-    # global payHist = Vector{Any}(undef,termLimit)
-    # global offerValHist = Vector{Any}(undef,termLimit)
-    # global payValHist = Vector{Any}(undef,termLimit)
-    # global priceHist = Vector{Any}(undef,termLimit)
-    # global costHist = Vector{Any}(undef,1)
-    # global choiceHist = Vector{Any}(undef,termLimit)
-    # global potentialHist = Vector{Any}(undef,termLimit)
+    global offerHist = Vector{Any}(undef,termLimit)
+    global payHist = Vector{Any}(undef,termLimit)
+    global offerValHist = Vector{Any}(undef,termLimit)
+    global payValHist = Vector{Any}(undef,termLimit)
+    global priceHist = Vector{Any}(undef,termLimit)
+    global costHist = Vector{Any}(undef,1)
+    global choiceHist = Vector{Any}(undef,termLimit)
+    global potentialHist = Vector{Any}(undef,termLimit)
 
     n = gameInfo.n
     privatePref = privateInfo.privatePref
@@ -98,8 +98,13 @@ function RunDiscAuction(gameInfo, NashList, privateInfo, disc, interrupt)
     # global payValHist[1] = deepcopy(payList)
     # global offerValHist[1] = deepcopy(offerHist)
     # global potentialHist[1] = deepcopy(sum(costList))
+
+    #이건 저장?
+    global cycleSizeTrack = Vector{Any}(undef,termLimit)
+    global activeTrack = Vector{Any}(undef,termLimit)
     
     count = 1
+    cycleCount = 0
     while true
         count = count + 1
         # global discount = discount * increment^(count%n+1-2)
@@ -123,11 +128,14 @@ function RunDiscAuction(gameInfo, NashList, privateInfo, disc, interrupt)
         
         if IsCycleDetected(tupleList, bidderProfitTuple)
             # println("Cycle Detected! @ count: $(count)")
+            cycleCount = cycleCount + 1
             global cycleTuple = GetCycleInfo(tupleList, bidderProfitTuple)
             global discount = discount * decrement
             tupleList = Vector{Any}(undef,0)            
             global activeChoice = GetActiveChoices(cycleTuple)
             global maxPriceDiff = GetPriceDiff(activeChoice, cycleTuple, n)            
+            global cycleSizeTrack[cycleCount] = maxPriceDiff
+            global activeTrack[cycleCount] = length(activeChoice)
             # Check termination condition
             if IsEpsilonTermination(maxPriceDiff,ϵ)
                 # println("Epsilon Termination Satisfied @ maxDiff: $(maxPriceDiff) < ϵ: $(ϵ)")
@@ -183,7 +191,11 @@ function RunDiscAuction(gameInfo, NashList, privateInfo, disc, interrupt)
         # end
     end
 
+    # count = count - 1
+
     # payHist = payHist[1:count]
+    global cycleSizeTrack = cycleSizeTrack[1:cycleCount]
+    global activeTrack = activeTrack[1:cycleCount]
 
     # global offerHist = offerHist[1:count]
     # global payHist = payHist[1:count]
@@ -193,7 +205,9 @@ function RunDiscAuction(gameInfo, NashList, privateInfo, disc, interrupt)
     # "offerHist" => offerHist,
     # "payHist" => payHist,
     # "priceHist" => priceHist,
-    # "costHist" => costHist
+    # "costHist" => costHist,
+    # "cycleSizeTrack" => cycleSizeTrack,
+    # "activeTrack" => activeTrack
     # ); version="v7.4")
 
     if isInterrupted
@@ -203,5 +217,5 @@ function RunDiscAuction(gameInfo, NashList, privateInfo, disc, interrupt)
     end
     priceVec = priceList[:,bestIdx]
     costVec = costList[:,bestIdx]
-    return (; bestIdx, count, priceVec, costVec)
+    return (; bestIdx, count, priceVec, costVec, cycleSizeTrack)
 end

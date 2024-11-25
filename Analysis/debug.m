@@ -4,6 +4,7 @@ costHist = data.costHist;
 payHist = data.payHist;
 offerHist = data.offerHist;
 priceHist = data.priceHist;
+cycleSizeHist = data.cycleSizeTrack;
 
 dataLen = length(payHist);
 
@@ -62,3 +63,63 @@ plot(rec(2,:,t1),rec(2,:,t2),'ro--')
 plot(rec(3,:,t1),rec(3,:,t2),'mo--')
 plot(rec(4,:,t1),rec(4,:,t2),'go--')
 axis equal
+
+%% diff reduction
+m = 24; n = 4; d=10; gamma=0.8; adjust = 1.2; epsilon = 10;
+
+limit = (m+1)*(n-1)*d*adjust;
+l = length(data.cycleSizeTrack);
+rec = zeros(l,1);
+limitRec = zeros(l,1);
+limit2Rec = zeros(l,1);
+
+for i = 1:l
+    rec(i) = data.cycleSizeTrack{i};
+    limitRec(i) = limit*gamma^(i-1);
+    limit2Rec(i) = (data.activeTrack{i}+1)*(n-1)*d*gamma^(i-1)*adjust;
+end
+
+figure(4)
+clf
+plot(rec,'LineWidth',3)
+hold on
+plot(limitRec,'LineWidth',2,'LineStyle','--')
+plot(limit2Rec,'LineWidth',2,'LineStyle',':')
+plot([1 l],[epsilon epsilon],'k:')
+grid on
+xlabel("Number of cycles")
+ylabel("Max price difference")
+
+%%
+data = load("Analysis/[0]_Experiment_cycleSize.mat");
+l = length(data.cycleSizeTrackList);
+maxL = 7;
+out = [];
+
+count = 0;
+for i = 1:l
+    localDat = data.cycleSizeTrackList{i};
+    ll = length(localDat);
+    for j = 1:ll
+        count = count + 1;
+        out(count,:) = [j,localDat{j}];
+    end
+end
+
+m = 24; n = 4; d=10; gamma=0.8; adjust = 1.2; epsilon = 10;
+limit = (m+1)*(n-1)*d;
+rec = zeros(l,1);
+limitRec = zeros(l,1);
+
+for i = 1:l
+    limitRec(i) = limit*gamma^(i-1);
+end
+
+figure(5)
+clf
+plot(out(:,1),out(:,2),'o','MarkerSize',5,'LineWidth',5)
+hold on
+plot(limitRec)
+grid on
+xlabel("Number of cycles")
+ylabel("Max price difference")

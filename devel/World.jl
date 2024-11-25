@@ -70,8 +70,9 @@ function ChoosePreference(c::Auction, nashSet, gameInfo, privateInfo, disc, inte
     count = out.count
     priceVec = out.priceVec
     costVec = out.costVec
+    cycleSizeTrack = out.cycleSizeTrack
     choiceList = fill(bestIdx,n)
-    return (;choiceList, count, priceVec, costVec)
+    return (;choiceList, count, priceVec, costVec, cycleSizeTrack)
 end
 
 function ChoosePreference(c::RandomDemo, nashSet, gameInfo, privateInfo, disc, interrupt)
@@ -150,6 +151,7 @@ function RunSim(n, termStep, seed, prefSelectionStrategy::PrefSelectionStrategy;
         costVec = tempOut.costVec
         fairness_public = EvalGini(gameInfo, costVec)
         count = tempOut.count
+        cycleSizeTrack = tempOut.cycleSizeTrack
     elseif prefSelectionStrategy == Voting()
         count = tempOut.count
     elseif prefSelectionStrategy == RandomDemo()
@@ -181,35 +183,6 @@ function RunSim(n, termStep, seed, prefSelectionStrategy::PrefSelectionStrategy;
             overallDistList = vcat(overallDistList, measureOverallDist(e, NashSet[j]))
         end
         cumDist = cumDist + overallDistList
-
-        # # Infer (individual)
-        # distList = Vector{Any}(undef,0)
-        # for i in 1:n # for individual player
-        #     indDistList = Vector{Any}(undef,0) # dist to an equi j of player i
-        #     for j in 1:NashNum # for each equil.
-        #         indDistList = vcat(indDistList, measureDist(e, NashSet[j], i))
-        #     end
-        #     distList = vcat(distList, [indDistList])
-        # end
-        
-        # # Update decision
-        # if t % termStep == 0
-        #     println(choiceList)
-        #     println("Update")
-        #     global choiceList = fill(findmin(cumDist)[2], n)
-        #     for i = 1:n
-        #         choiceList[i] = Roulette(map(x->1/x, cumDist))
-        #     end
-        #     # choiceList = fill(Roulette(1./cumDist), n)
-        #     println(choiceList)
-        #     cumDist = zeros(NashNum)
-        # end
-
-        # println(round.(e,digits=2))
-        # println(round.(distList,digits=2))
-        # println(sortperm(overallDistList))
-        # println(round.(overallDistList,digits=2))
-        # println(map(x -> round.(x./sum(x),digits=2), distList))
     end
     # println(systemOptIdx)
     # println("============")
@@ -231,8 +204,6 @@ function RunSim(n, termStep, seed, prefSelectionStrategy::PrefSelectionStrategy;
     end
     optScore = EvalSystemScore(gameInfo, NashSet, sysOpt)
 
-    # println(optScore)
-    # println(currentScore)
     optGap = (currentScore-optScore)/optScore
     if prefSelectionStrategy == Auction() || prefSelectionStrategy == Voting()
         if prefSelectionStrategy == Voting()
@@ -240,7 +211,7 @@ function RunSim(n, termStep, seed, prefSelectionStrategy::PrefSelectionStrategy;
             fairness = EvalGini(gameInfo, costList[:,choiceList[1]])
             return (;optGap, count, fairness)
         else
-            return (;optGap, count, fairness = fairness_private, fairness_public)
+            return (;optGap, count, fairness = fairness_private, fairness_public, cycleSizeTrack)
         end
     elseif prefSelectionStrategy == RandomDemo()
         return (;optGap, count = 1, averageCost, fairness = averageFairness)
