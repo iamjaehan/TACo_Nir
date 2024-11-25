@@ -203,6 +203,32 @@ function GetCycleInfo(tupleList, bidderProfitTuple)
     return cycleTuple
 end
 
-function IsEpsilonTermination(cycleTuple)
-    return false
+function GetActiveChoices(cycleTuple)
+    l = size(cycleTuple)[1]
+    activeChoiceList = Vector{Any}(undef,l)
+    for i = 1:l
+        player = cycleTuple[i][1]
+        idx = findmin(cycleTuple[i][2][player,:])[2]
+        activeChoiceList[i] = idx
+    end
+    return unique(activeChoiceList)
+end
+
+function GetPriceDiff(activeList, cycleTuple, n)
+    l = size(cycleTuple)[1]
+    out = 0
+    for i = 1:l
+        for j = 1:n
+            priceList = cycleTuple[i][2][j,activeList]
+            priceDiff = maximum(priceList) - minimum(priceList)
+            if priceDiff > out
+                out = priceDiff
+            end
+        end
+    end
+    return out
+end
+
+function IsEpsilonTermination(maxPriceDiff, ϵ)
+    return maxPriceDiff < ϵ
 end

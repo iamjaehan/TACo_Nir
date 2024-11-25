@@ -10,7 +10,7 @@ function PrepNash(gameInfo,seqIdx)
     combNum = length(GetCombination(n))
 
     # Constraint as a shared constraint
-    fs = [(x,θ) -> CalcJ(x,ψ,ii) for ii in 1:n]
+    fs = [(x,θ) -> CalcJ(x[Block(ii)],ψ,ii) for ii in 1:n]
     gs = [(x,θ) -> [0] for ii in 1:n]
     hs = [(x,θ) -> [0] for ii in 1:n]
     g̃ = (x,θ) -> [0]

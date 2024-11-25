@@ -4,8 +4,8 @@ using datfm
 global nextBidderProtocol = OrderTypeNextBidder()
 global increment = 1
 global topN = 1
-global decrement = 0.8
 termLimit = 10000
+global ϵ = 10
 
 abstract type NextBidderProtocol end
 struct OrderTypeNextBidder <: NextBidderProtocol end
@@ -104,22 +104,34 @@ function RunDiscAuction(gameInfo, NashList, privateInfo, disc, interrupt)
         count = count + 1
         # global discount = discount * increment^(count%n+1-2)
         # global discount = discount * (rand()*discVar+1-discVar/2)
-        # global discount = discount * increment
+        global discount = discount * increment
         # prevAssignList = deepcopy(assignList)
         # println("Iteration #$(count)")
 
         # Choose bidder
         bidder = WhoIsNext(nextBidderProtocol, n, count)    
         # Detect Cycle
-        bidderProfitTuple = (bidder,priceList)
+        bidderProfitTuple = (bidder,round.(priceList,digits=10))
+        # if count == 99 || count == 115 || count == 131 || count == 147
+        #     testTuple = (bidder,round.(priceList,digits=3))
+        #     println(testTuple)
+        #     if count != 99
+        #         println(prevTuple == testTuple)
+        #     end
+        #     global prevTuple = testTuple
+        # end
+        
         if IsCycleDetected(tupleList, bidderProfitTuple)
+            # println("Cycle Detected! @ count: $(count)")
             global cycleTuple = GetCycleInfo(tupleList, bidderProfitTuple)
             global discount = discount * decrement
-            tupleList = Vector{Any}(undef,0)
-            println("Cycle Detected! @ count: $(count)")
-            
+            tupleList = Vector{Any}(undef,0)            
+            global activeChoice = GetActiveChoices(cycleTuple)
+            global maxPriceDiff = GetPriceDiff(activeChoice, cycleTuple, n)            
             # Check termination condition
-            if IsEpsilonTermination(cycleTuple)
+            if IsEpsilonTermination(maxPriceDiff,ϵ)
+                # println("Epsilon Termination Satisfied @ maxDiff: $(maxPriceDiff) < ϵ: $(ϵ)")
+                isInterrupted = true
                 break
             end
         end
@@ -140,7 +152,6 @@ function RunDiscAuction(gameInfo, NashList, privateInfo, disc, interrupt)
         # Assign
         assignList[bidder] = bestBidIdx[1]
         # global choiceHist[count-1] = deepcopy(assignList)
-        # println(map(x->Int64(x),assignList))
 
         # Check Abnormal Termination Condition
         if count == termLimit || count >= interrupt
@@ -148,7 +159,7 @@ function RunDiscAuction(gameInfo, NashList, privateInfo, disc, interrupt)
                 isInterrupted = true
             end
             if count == termLimit
-                # println("[Warning] Convergence Failure [Auction] seed: $(seed),: disc: $(discount)")
+                println("[Warning] Convergence Failure [Auction] seed: $(seed),: disc: $(discount)")
             end
             break
         end
@@ -177,6 +188,7 @@ function RunDiscAuction(gameInfo, NashList, privateInfo, disc, interrupt)
     # global offerHist = offerHist[1:count]
     # global payHist = payHist[1:count]
     # global priceHist = priceHist[1:count]
+
     # matwrite("Analysis/[0]HistTest.mat", Dict(
     # "offerHist" => offerHist,
     # "payHist" => payHist,

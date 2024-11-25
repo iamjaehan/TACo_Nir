@@ -2,7 +2,8 @@ close all
 colorArray={[0 0.4470 0.7410],[0.8500 0.3250 0.0980],[0.9290 0.6940 0.1250],[0.4660 0.6740 0.1880]};
 
 % data = load("[0]_Experiment_set7_1.mat");
-data = load("[0]_Experiment_set8_1.mat");
+% data = load("[0]_Experiment_set8_1.mat");
+data = load("[0]_Experiment_epsilon.mat");
 
 optGap = cell2mat(data.OptGap);
 count = cell2mat(data.Count);
@@ -11,7 +12,7 @@ fairness = cell2mat(data.Fairness);
 % xtickLabelSet = {'TAC (0.1xstep)','TAC (ours)','TAC (10xstep)','TAC (int @ 60)', 'TAC (int @ 30)',...
 %     '5%','10%','TAC (int @ 5)','Voting', 'Utilitarian', 'Egalitarian', 'Random Demo'};  
 
-xtickLabelSet = {'TAC (0.1xstep)','TAC (ours)','TAC (10xstep)','TAC (int @ 60)', 'TAC (int @ 30)',...
+xtickLabelSet = {'TAC (30% dec.)','TAC (50% dec.)','TAC (ours)','TAC (99% dec.)','TAC (int @ 60)', 'TAC (int @ 30)',...
     'TAC (int @ 5)','Voting', 'Utilitarian', 'Egalitarian', 'Random Demo'};  
 
 %% param
@@ -20,7 +21,7 @@ fontsize = 25;
 
 %% Experiment #1: Optgap comparison
 % kernel = [2,9,10,11,12];
-kernel = [2,7,8,9,10];
+kernel = [2,7,8,9,10]+1;
 figure(1)
 clf
 h=boxplot(optGap(kernel,:)','Notch','on','Whisker',whiskerVal);
@@ -43,7 +44,7 @@ exportgraphics(gca,"Figure/"+"Exp1_optgap.png")
 %% Experiment #2: Convergence
 figure(2)
 % kernel = [2,9,10,11,12];
-kernel = [2,7,8,9,10];
+kernel = [2,7,8,9,10]+1;
 clf
 h=boxplot(count(kernel,:)','Notch','on','Whisker',whiskerVal);
 localxtickLabelSet = xtickLabelSet(kernel);
@@ -64,7 +65,7 @@ exportgraphics(gca,"Figure/"+"Exp2_convergence.png")
 %% Experiment #3: Fairness
 figure(3)
 % kernel = [2,9,10,11,12];
-kernel = [2,7,8,9,10];
+kernel = [2,7,8,9,10]+1;
 clf
 h=boxplot(fairness(kernel,:)','Notch','on','Whisker',whiskerVal);
 localxtickLabelSet = xtickLabelSet(kernel);
@@ -84,7 +85,7 @@ grid on
 exportgraphics(gca,"Figure/"+"Exp3_gini.png")
 
 %% Experiment #4: Trading step
-kernel = [1,2,3];
+kernel = [1,2,3,4];
 offset = linspace(-0.15,0.15,2);
 boxWidth = 0.25;
 xtickPos = 1:length(kernel);
@@ -120,7 +121,7 @@ grid on
 exportgraphics(gca,"Figure/"+"Exp4_1_interruption.png")
 
 %% Experiment #4_2: Trading step
-kernel = [1,2,3];
+kernel = [1,2,3,4];
 
 figure(44)
 h=boxplot(count(kernel,:)','Notch','on','Whisker',whiskerVal,'Widths',boxWidth);
@@ -142,7 +143,7 @@ exportgraphics(gca,"Figure/"+"Exp4_2_interruption.png")
 
 %% Experiment #5: Interrupt
 % kernel = [2,4,5,8];
-kernel = [2,4,5,6];
+kernel = [2,4,5,6]+1;
 offset = linspace(-0.15,0.15,2);
 boxWidth = 0.25;
 xtickPos = 1:length(kernel);
@@ -180,7 +181,7 @@ exportgraphics(gca,"Figure/"+"Exp5_1_interruption.png")
 %% Experiment #5_2: Interrupt
 figure(55)
 % kernel = [2,4,5,8];
-kernel = [2,4,5,6];
+kernel = [2,4,5,6]+1;
 clf
 h=boxplot(count(kernel,:)','Notch','on','Whisker',whiskerVal,'Widths',boxWidth);
 localxtickLabelSet = xtickLabelSet(kernel);
