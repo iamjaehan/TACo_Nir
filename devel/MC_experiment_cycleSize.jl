@@ -5,7 +5,7 @@ using ProgressBars
 include("World.jl")
 include("0_GameSetup.jl")
 
-iterNum = 10
+iterNum = 100
 n = 4
 testCaseNum = 1
 Record = Array{Any,2}(undef,testCaseNum,iterNum)
@@ -16,7 +16,7 @@ global cycleSizeTrackList = Vector{Any}(undef,iterNum)
 outList = Array{Any}(undef,testCaseNum,iterNum)
 
 # for i = 1:iterNum
-for i in 1:iterNum
+for i in ProgressBar(1:iterNum)
     # seed = 17095
     global seed = rand(1:100000)
     global topN = 1

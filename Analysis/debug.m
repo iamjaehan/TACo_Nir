@@ -91,7 +91,8 @@ xlabel("Number of cycles")
 ylabel("Max price difference")
 
 %%
-data = load("Analysis/[0]_Experiment_cycleSize.mat");
+% data = load("Analysis/[0]_Experiment_cycleSize.mat");
+data = load("Analysis/[0]_Experiment_epsilon.mat");
 l = length(data.cycleSizeTrackList);
 maxL = 7;
 out = [];
@@ -109,9 +110,9 @@ end
 m = 24; n = 4; d=10; gamma=0.8; adjust = 1.2; epsilon = 10;
 limit = (m+1)*(n-1)*d;
 rec = zeros(l,1);
-limitRec = zeros(l,1);
+limitRec = zeros(maxL,1);
 
-for i = 1:l
+for i = 1:maxL
     limitRec(i) = limit*gamma^(i-1);
 end
 

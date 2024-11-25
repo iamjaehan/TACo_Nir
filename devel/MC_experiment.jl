@@ -13,6 +13,7 @@ OptGap = deepcopy(Record)
 Fairness = deepcopy(Record)
 Count = deepcopy(Record)
 outList = Array{Any}(undef,testCaseNum,iterNum)
+global cycleSizeTrackList = Vector{Any}(undef,iterNum)
 
 # for i = 1:iterNum
 for i in ProgressBar(1:iterNum)
@@ -41,12 +42,14 @@ for i in ProgressBar(1:iterNum)
     for j = 1:testCaseNum
         OptGap[j,i] = outList[j,i].optGap
         Count[j,i] = outList[j,i].count
-        Fairness[j,i] = outList[j,i].fairness
+        Fairness[j,i] = outList[j,i].fairness        
     end
+    cycleSizeTrackList[i] = outList[3,i].cycleSizeTrack
 end
 
 matwrite("Analysis/[0]_Experiment_epsilon.mat",Dict(
     "OptGap" => OptGap,
     "Count" => Count,
-    "Fairness" => Fairness
+    "Fairness" => Fairness,
+    "cycleSizeTrackList" => cycleSizeTrackList
 ); version="v7.4")
