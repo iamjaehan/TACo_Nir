@@ -66,6 +66,8 @@ axis equal
 
 %% diff reduction
 m = 24; n = 4; d=10; gamma=0.8; adjust = 1.2; epsilon = 10;
+% data = load("Analysis/[0]_Experiment_cycleSize.mat");
+% data2= data;
 
 limit = (m+1)*(n-1)*d*adjust;
 l = length(data.cycleSizeTrack);
@@ -78,7 +80,7 @@ for i = 1:l
     limitRec(i) = limit*gamma^(i-1);
     limit2Rec(i) = (data.activeTrack{i}+1)*(n-1)*d*gamma^(i-1)*adjust;
 end
-
+temprec = rec;
 figure(4)
 clf
 plot(rec,'LineWidth',3)
@@ -91,10 +93,9 @@ xlabel("Number of cycles")
 ylabel("Max price difference")
 
 %%
-% data = load("Analysis/[0]_Experiment_cycleSize.mat");
 data = load("Analysis/[0]_Experiment_epsilon.mat");
 l = length(data.cycleSizeTrackList);
-maxL = 7;
+maxL = 14;
 out = [];
 
 count = 0;
@@ -107,20 +108,30 @@ for i = 1:l
     end
 end
 
-m = 24; n = 4; d=10; gamma=0.8; adjust = 1.2; epsilon = 10;
+m = 24; n = 4; d=10; gamma=0.8; epsilon = 10; adjust = 1.2;
 limit = (m+1)*(n-1)*d;
+limit2 = (1+1)*(n-1)*d;
+limit3 = (3+1)*(n-1)*d;
 rec = zeros(l,1);
 limitRec = zeros(maxL,1);
+limitRec2 = zeros(maxL,1);
+limitRec3 = zeros(maxL,1);
 
 for i = 1:maxL
-    limitRec(i) = limit*gamma^(i-1);
+    limitRec(i) = limit*gamma^(i-1)*adjust;
+    limitRec2(i) = limit2*gamma^(i-1)*adjust;
+    limitRec3(i) = limit3*gamma^(i-1)*adjust;
 end
 
 figure(5)
 clf
-plot(out(:,1),out(:,2),'o','MarkerSize',5,'LineWidth',5)
+plot(out(:,1),out(:,2),'.','MarkerSize',15,'LineWidth',5)
 hold on
-plot(limitRec)
+plot(temprec,'--','LineWidth',2)
+plot(limitRec,'LineWidth',1)
+plot(limitRec2,'LineWidth',1)
+plot(limitRec3,'LineWidth',1)
 grid on
-xlabel("Number of cycles")
-ylabel("Max price difference")
+xlabel("Number of cycles",'fontsize',20)
+ylabel("Max price difference",'fontsize',20)
+xlim([1 inf])
