@@ -91,13 +91,13 @@ function RunDiscAuction(gameInfo, NashList, privateInfo, disc, interrupt)
     global tupleList = Vector{Any}(undef,0)
     isInterrupted = false
 
-    # global offerHist[1] = deepcopy(offerList)
-    # global payHist[1] = deepcopy(payList)
-    # global costHist[1] = deepcopy(costList)
-    # global priceHist[1] = deepcopy(priceList)
-    # global payValHist[1] = deepcopy(payList)
-    # global offerValHist[1] = deepcopy(offerHist)
-    # global potentialHist[1] = deepcopy(sum(costList))
+    global offerHist[1] = deepcopy(offerList)
+    global payHist[1] = deepcopy(payList)
+    global costHist[1] = deepcopy(costList)
+    global priceHist[1] = deepcopy(priceList)
+    global payValHist[1] = deepcopy(payList)
+    global offerValHist[1] = deepcopy(offerHist)
+    global potentialHist[1] = deepcopy(sum(costList))
 
     #이건 저장?
     global cycleSizeTrack = Vector{Any}(undef,termLimit)
@@ -136,6 +136,8 @@ function RunDiscAuction(gameInfo, NashList, privateInfo, disc, interrupt)
             global maxPriceDiff = GetPriceDiff(activeChoice, cycleTuple, n)            
             global cycleSizeTrack[cycleCount] = maxPriceDiff
             global activeTrack[cycleCount] = length(activeChoice)
+            # println(activeChoice)
+            # println(maxPriceDiff)
             # Check termination condition
             if IsEpsilonTermination(maxPriceDiff,ϵ)
                 # println("Epsilon Termination Satisfied @ maxDiff: $(maxPriceDiff) < ϵ: $(ϵ)")
@@ -172,12 +174,12 @@ function RunDiscAuction(gameInfo, NashList, privateInfo, disc, interrupt)
             break
         end
 
-        # global potentialHist[count] = deepcopy(sum(priceList))
-        # global offerHist[count] = deepcopy(offerUnitList)
-        # global payHist[count] = deepcopy(payUnitList)
-        # global priceHist[count] = deepcopy(priceList)
-        # global payValHist[count] = deepcopy(payList)
-        # global offerValHist[count] = deepcopy(offerList)
+        global potentialHist[count] = deepcopy(sum(priceList))
+        global offerHist[count] = deepcopy(offerUnitList)
+        global payHist[count] = deepcopy(payUnitList)
+        global priceHist[count] = deepcopy(priceList)
+        global payValHist[count] = deepcopy(payList)
+        global offerValHist[count] = deepcopy(offerList)
 
         # if iszero(assignList.-assignList[1]) || count == termLimit || count >= interrupt
         #     if count == interrupt
@@ -217,5 +219,5 @@ function RunDiscAuction(gameInfo, NashList, privateInfo, disc, interrupt)
     end
     priceVec = priceList[:,bestIdx]
     costVec = costList[:,bestIdx]
-    return (; bestIdx, count, priceVec, costVec, cycleSizeTrack)
+    return (; bestIdx, count, priceVec, costVec, cycleSizeTrack, activeTrack)
 end

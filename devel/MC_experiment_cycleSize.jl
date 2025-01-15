@@ -5,7 +5,7 @@ using ProgressBars
 include("World.jl")
 include("0_GameSetup.jl")
 
-iterNum = 100
+iterNum = 10
 n = 4
 testCaseNum = 1
 Record = Array{Any,2}(undef,testCaseNum,iterNum)

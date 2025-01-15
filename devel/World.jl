@@ -71,8 +71,9 @@ function ChoosePreference(c::Auction, nashSet, gameInfo, privateInfo, disc, inte
     priceVec = out.priceVec
     costVec = out.costVec
     cycleSizeTrack = out.cycleSizeTrack
+    activeTrack = out.activeTrack
     choiceList = fill(bestIdx,n)
-    return (;choiceList, count, priceVec, costVec, cycleSizeTrack)
+    return (;choiceList, count, priceVec, costVec, cycleSizeTrack, activeTrack)
 end
 
 function ChoosePreference(c::RandomDemo, nashSet, gameInfo, privateInfo, disc, interrupt)
@@ -152,6 +153,7 @@ function RunSim(n, termStep, seed, prefSelectionStrategy::PrefSelectionStrategy;
         fairness_public = EvalGini(gameInfo, costVec)
         count = tempOut.count
         cycleSizeTrack = tempOut.cycleSizeTrack
+        activeTrack = tempOut.activeTrack
     elseif prefSelectionStrategy == Voting()
         count = tempOut.count
     elseif prefSelectionStrategy == RandomDemo()
@@ -188,14 +190,14 @@ function RunSim(n, termStep, seed, prefSelectionStrategy::PrefSelectionStrategy;
     # println("============")
     
     # println(count)
-    if matWrite
-        matwrite("Analysis/eHistory.mat",Dict(
-            "eHistory" => eHistory,
-            "choiceHist" => choiceHist[1:count-1],
-            "potentialHist" => potentialHist[1:count-1],
-            "psi" => ψ
-        ); version="v7.4")
-    end
+    # if matWrite
+    #     matwrite("Analysis/eHistory.mat",Dict(
+    #         "eHistory" => eHistory,
+    #         "choiceHist" => choiceHist[1:count-1],
+    #         "potentialHist" => potentialHist[1:count-1],
+    #         "psi" => ψ
+    #     ); version="v7.4")
+    # end
 
     if prefSelectionStrategy != RandomDemo()
         currentScore = EvalSystemScore(gameInfo, NashSet, choiceList[1])
@@ -211,7 +213,7 @@ function RunSim(n, termStep, seed, prefSelectionStrategy::PrefSelectionStrategy;
             fairness = EvalGini(gameInfo, costList[:,choiceList[1]])
             return (;optGap, count, fairness)
         else
-            return (;optGap, count, fairness = fairness_private, fairness_public, cycleSizeTrack)
+            return (;optGap, count, fairness = fairness_private, fairness_public, cycleSizeTrack, activeTrack)
         end
     elseif prefSelectionStrategy == RandomDemo()
         return (;optGap, count = 1, averageCost, fairness = averageFairness)

@@ -4,7 +4,7 @@ using MAT
 include("World.jl")
 include("0_GameSetup.jl")
 
-iterNum = 100;
+iterNum = 1000;
 n = 4;
 
 Record = Array{Any,2}(undef,1,iterNum)
@@ -14,7 +14,7 @@ Fair_pri = deepcopy(Record)
 
 for i = 1:iterNum
     # seed = 17095
-    seed = rand(1:1000)
+    global seed = rand(1:100000)
     global topN = 1
 
     # out1 = RunSim(n,1,seed,Auction(),matWrite=false, disc = 0.1)
@@ -47,21 +47,24 @@ for i = 1:iterNum
     # Count[2,i] = out2.count
     # Count[3,i] = out3.count
 
-    out1 = RunSim(n,1,seed,Auction(),matWrite=false, disc = 1)
+    out1 = RunSim(n,0,seed,Auction(),matWrite=false, disc = 10)
     Record[1,i] = out1.optGap
     Count[1,i] = out1.count
-    Fair_pub[1,i] = out1.fairness_public
-    Fair_pri[1,i] = out1.fairness_private
+
+    if (out1.fairness) > 2
+        println("seed: $(seed), fairness: $(out1.fairness)")
+        break
+    end
 
     println("Iter $(i) out of $(iterNum) done!")
 end
 
-matwrite("Analysis/MC_private_public.mat",Dict(
-    "Record" => Record,
-    "Count" => Count,
-    "Fair_pub" => Fair_pub,
-    "Fair_pri" => Fair_pri
-); version="v7.4")
+# matwrite("Analysis/MC_private_public.mat",Dict(
+#     "Record" => Record,
+#     "Count" => Count,
+#     "Fair_pub" => Fair_pub,
+#     "Fair_pri" => Fair_pri
+# ); version="v7.4")
 
 # say(what) = run(`osascript -e "say \"$(what)\""`, wait=false)
 # say("Beep"^10)
