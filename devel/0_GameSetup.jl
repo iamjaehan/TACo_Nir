@@ -7,13 +7,6 @@ using Statistics
 using Random
 using StatsBase
 
-include("Auction.jl")
-include("World.jl")
-include("Vote.jl")
-include("DiscountAuction.jl")
-include("PrivateInfo.jl")
-include("RandomDemocracy.jl")
-
 function GenSeqSeed(n)
     if n>=10
         println("[Warning] n too big. n! is a dangerous thing.")

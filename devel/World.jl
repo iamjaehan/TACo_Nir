@@ -9,7 +9,7 @@ struct Auction <: PrefSelectionStrategy end
 struct RandomDemo <: PrefSelectionStrategy end
 struct SystemFair <: PrefSelectionStrategy end
 
-function ChoosePreference(c::SystemOptimal, nashList, gameInfo, privateInfo, disc, interrupt) # Selection method
+function ChoosePreference(c::SystemOptimal, nashList, gameInfo, privateInfo, disc, interrupt, decrement) # Selection method
     n = gameInfo.n
     ψ = gameInfo.ψ
     listLen = length(nashList)
@@ -20,7 +20,7 @@ function ChoosePreference(c::SystemOptimal, nashList, gameInfo, privateInfo, dis
     return (;choiceList)
 end
 
-function ChoosePreference(c::SystemFair, nashList, gameInfo, privateInfo, disc, interrupt) # Selection method
+function ChoosePreference(c::SystemFair, nashList, gameInfo, privateInfo, disc, interrupt, decrement) # Selection method
     n = gameInfo.n
     ψ = gameInfo.ψ
     listLen = length(nashList)
@@ -37,7 +37,7 @@ function ChoosePreference(c::SystemFair, nashList, gameInfo, privateInfo, disc, 
     return (;choiceList)
 end
 
-function ChoosePreference(c::Selfish, nashList, gameInfo, privateInfo, disc, interrupt)
+function ChoosePreference(c::Selfish, nashList, gameInfo, privateInfo, disc, interrupt, decrement)
     n = gameInfo.n
     ψ = gameInfo.ψ
     listLen = length(nashList)
@@ -52,7 +52,7 @@ function ChoosePreference(c::Selfish, nashList, gameInfo, privateInfo, disc, int
     return choiceList
 end
 
-function ChoosePreference(c::Voting, nashSet, gameInfo, privateInfo, disc, interrupt)
+function ChoosePreference(c::Voting, nashSet, gameInfo, privateInfo, disc, interrupt, decrement)
     n = gameInfo.n
     NashNum = length(nashSet)
     out = RunVote(gameInfo, nashSet)
@@ -62,10 +62,10 @@ function ChoosePreference(c::Voting, nashSet, gameInfo, privateInfo, disc, inter
     return (;choiceList, count)
 end
 
-function ChoosePreference(c::Auction, nashSet, gameInfo, privateInfo, disc, interrupt)
+function ChoosePreference(c::Auction, nashSet, gameInfo, privateInfo, disc, interrupt, decrement)
     n = gameInfo.n
     NashNum = length(nashSet)
-    out = RunDiscAuction(gameInfo, nashSet, privateInfo, disc, interrupt)
+    out = RunDiscAuction(gameInfo, nashSet, privateInfo, disc, interrupt, decrement)
     bestIdx = out.bestIdx
     count = out.count
     priceVec = out.priceVec
@@ -76,7 +76,7 @@ function ChoosePreference(c::Auction, nashSet, gameInfo, privateInfo, disc, inte
     return (;choiceList, count, priceVec, costVec, cycleSizeTrack, activeTrack)
 end
 
-function ChoosePreference(c::RandomDemo, nashSet, gameInfo, privateInfo, disc, interrupt)
+function ChoosePreference(c::RandomDemo, nashSet, gameInfo, privateInfo, disc, interrupt, decrement)
     n = gameInfo.n
     NashNum = length(nashSet)
     out = RunRD(gameInfo, nashSet)
@@ -112,7 +112,7 @@ end
 
 # Single game
 function RunSim(n, termStep, seed, prefSelectionStrategy::PrefSelectionStrategy; matWrite=true, usePrivateInfo=true,
-    disc = 10, interrupt = Inf)
+    disc = 10, interrupt = Inf, decrement= 0.9)
     dt = 1 #ADS-B update rate
     simT = 1000
     maxDv = 1 * dt
@@ -144,7 +144,7 @@ function RunSim(n, termStep, seed, prefSelectionStrategy::PrefSelectionStrategy;
         GenFakePrivatePref(gameInfo, seed, disc)
     end
     privateInfo = GetPrivatePref()
-    tempOut = ChoosePreference(prefSelectionStrategy, NashSet, gameInfo, privateInfo, disc, interrupt)
+    tempOut = ChoosePreference(prefSelectionStrategy, NashSet, gameInfo, privateInfo, disc, interrupt, decrement)
     global choiceList = tempOut.choiceList
     if prefSelectionStrategy == Auction()
         priceVec = tempOut.priceVec
@@ -161,7 +161,7 @@ function RunSim(n, termStep, seed, prefSelectionStrategy::PrefSelectionStrategy;
         averageFairness = tempOut.averageFairness
     end
 
-    global sysOpt = ChoosePreference(SystemOptimal(), NashSet, gameInfo, privateInfo, disc, interrupt)
+    global sysOpt = ChoosePreference(SystemOptimal(), NashSet, gameInfo, privateInfo, disc, interrupt, decrement)
     sysOpt = sysOpt.choiceList[1]
 
     # Run scenario

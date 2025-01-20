@@ -1,7 +1,4 @@
 using datfm
-
-# global nextBidderProtocol = LeastFavorNextBidder() # LeastFavorNextBidder, OrderTypeNextBidder
-global nextBidderProtocol = OrderTypeNextBidder()
 global increment = 1
 global topN = 1
 termLimit = 10000
@@ -10,6 +7,9 @@ global ϵ = 10
 abstract type NextBidderProtocol end
 struct OrderTypeNextBidder <: NextBidderProtocol end
 struct LeastFavorNextBidder <: NextBidderProtocol end
+
+# global nextBidderProtocol = LeastFavorNextBidder() # LeastFavorNextBidder, OrderTypeNextBidder
+global nextBidderProtocol = OrderTypeNextBidder()
 
 function WhoIsNext(c::OrderTypeNextBidder, n, counter)
     return (counter-2)%n + 1
@@ -63,7 +63,7 @@ function UpdatePayUnitList(payUnitList, plIdx, bidIdx, privatePref)
     return payUnitList
 end
 
-function RunDiscAuction(gameInfo, NashList, privateInfo, disc, interrupt)
+function RunDiscAuction(gameInfo, NashList, privateInfo, disc, interrupt, decrement)
     ## Debugging history
     # global offerHist = Vector{Any}(undef,termLimit)
     # global payHist = Vector{Any}(undef,termLimit)

@@ -13,11 +13,18 @@ include("parametric_game.jl")
 export ParametricOptimizationProblem, solve, total_dim
 include("parametric_optimization_problem.jl")
 export ParametricGame
-include("../devel/0_GameSetup.jl")
-export SetGame, CalcJ, measureDist
 include("../devel/SearchNash.jl")
 export SearchNash, SearchAllNash
+include("../devel/0_GameSetup.jl")
+include("../devel/DiscountAuction.jl")
+export RunDiscAuction
+include("../devel/Vote.jl")
+export RunVote
+include("../devel/RandomDemocracy.jl")
+export RunRD
 include("../devel/World.jl")
-export ChoosePreference, RunScenario, RunSim
+export Voting, SystemOptimal, RandomDemo, SystemFair, Selfish, Auction, RunSim
+include("../devel/PrivateInfo.jl")
+export GenFakePrivatePref, GenPrivatePref, GetPrivatePref
 
 end # module datfm

@@ -1,9 +1,10 @@
 using datfm
 using MAT
 using ProgressBars
+using StatsBase
 
-include("World.jl")
-include("0_GameSetup.jl")
+# include("World.jl")
+# include("0_GameSetup.jl")
 
 iterNum = 1000
 n = 4
@@ -26,15 +27,15 @@ for i in ProgressBar(1:iterNum)
     global topN = 1
     global increment = 1
 
-    global decrement = 0.9
+    # global decrement = 0.9
     outList[1,i] = RunSim(n, 0, seed, Auction(), matWrite=false, disc=1, interrupt=Inf)
-    global decrement = 0.9
+    # global decrement = 0.9
     outList[2,i] = RunSim(n, 0, seed, Auction(), matWrite=false, disc=50, interrupt=Inf)
-    global decrement = 0.9
+    # global decrement = 0.9
     outList[3,i] = RunSim(n, 0, seed, Auction(), matWrite=false, disc=10, interrupt=Inf)
-    global decrement = 0.9
+    # global decrement = 0.9
     outList[4,i] = RunSim(n, 0, seed, Auction(), matWrite=false, disc=100, interrupt=Inf)
-    global decrement = 0.9
+    # global decrement = 0.9
     outList[5,i] = RunSim(n, 0, seed, Auction(), matWrite=false, disc=10, interrupt=60)
     outList[6,i] = RunSim(n, 0, seed, Auction(), matWrite=false, disc=10, interrupt=30)
     outList[7,i] = RunSim(n, 0, seed, Auction(), matWrite=false, disc=10, interrupt=n+1)
