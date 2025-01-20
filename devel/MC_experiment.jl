@@ -16,10 +16,12 @@ outList = Array{Any}(undef,testCaseNum,iterNum)
 global cycleSizeTrackList = Vector{Any}(undef,iterNum)
 global activeTrackList = Vector{Any}(undef,iterNum)
 
+global seedList = sample(1:100000,iterNum,replace=false)
+
 # for i = 1:iterNum
 for i in ProgressBar(1:iterNum)
     # seed = 17095
-    global seed = rand(1:100000)
+    global seed = seedList[i]
     # global seed = i
     global topN = 1
     global increment = 1

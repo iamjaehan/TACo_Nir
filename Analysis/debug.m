@@ -95,6 +95,9 @@ temprec = rec;
 
 %%
 data = load("Analysis/[0]_Experiment_epsilon.mat");
+fontsize = 25;
+set(groot, 'defaultAxesTickLabelInterpreter','latex');
+
 l = length(data.cycleSizeTrackList);
 maxL = 14;
 out = [];
@@ -140,7 +143,8 @@ end
 % xlim([1 inf])
 
 %%
-data = load("Analysis/[0]_Experiment_epsilon.mat");
+% data = load("Analysis/[0]_Experiment_epsilon.mat");
+data = load("Analysis/[0]_Experiment_epsilon_3.mat");
 l = length(data.cycleSizeTrackList);
 maxL = 14;
 out = [];
@@ -153,7 +157,7 @@ clf
 
 m = 24; n = 4; d=10; gamma=0.9; epsilon = 10; adjust = 1;
 limit = (m+1)*(n-1)*d;
-limit2 = (10+1)*(n-1)*d;
+limit2 = (2+1)*(n-1)*d;
 limit3 = (1+1)*(n-1)*d;
 rec = zeros(l,1);
 limitRec = zeros(maxL,1);
@@ -167,10 +171,11 @@ for i = 1:maxL
 end
 
 % plot(temprec,'--','LineWidth',2)
-plot(limitRec,'LineWidth',1)
+plot(limitRec,'b','LineWidth',2)
 hold on
-plot(limitRec2,'LineWidth',1)
-plot(limitRec3,'LineWidth',1)
+plot(limitRec2,'b--','LineWidth',2)
+plot([0 14], [10 10], 'k--','LineWidth',2)
+% plot(limitRec3,'LineWidth',1)
 outRecord = [];
 countRecord = 0;
 for i = 1:l
@@ -185,7 +190,9 @@ for i = 1:l
         outRecord(countRecord,:) = [j,localDat{j}];
     end
     % plot(out(:,1),out(:,2),'-','LineWidth',5,'Color',[0.2 0.5 0.9 0.2])
-    plot(out(:,1),out(:,2),'-','LineWidth',5,'Color',[0 0 0 0.2])
+    % if i ~= 835
+        plot(out(:,1),out(:,2),'-','LineWidth',5,'Color',[0 0 0 0.2])
+    % end
 end
 
 grid on
@@ -193,6 +200,17 @@ xlabel("Number of cycles",'fontsize',20)
 ylabel("Max price difference",'fontsize',20)
 xlim([1 inf])
 
-legend("Upper bound (m=24)","Upper bound (m=6)","Upper bound (m=2)")
+legend("Upper bound (m=24)","Upper bound (m=2)","\epsilon","Actual Profit Difference")
+
+a = get(gca,'XTickLabel');
+set(gca,'XTickLabel',a,'FontName','Times','fontsize',18)
+set(gca,'XTickLabel',a,'FontName','Times','fontsize',fontsize,'FontWeight','normal')
 
 set(gcf,'Position',[1500, 500 500 500])
+exportgraphics(gca,"Figure/"+"PriceDiff.png")
+
+ylim([0 100])
+lgd = findobj('type', 'legend')
+delete(lgd)
+
+exportgraphics(gca,"Figure/"+"PriceDiff2.png")

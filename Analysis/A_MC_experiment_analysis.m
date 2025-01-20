@@ -4,8 +4,8 @@ colorArray={[0 0.4470 0.7410],[0.8500 0.3250 0.0980],[0.9290 0.6940 0.1250],[0.4
 
 % data = load("[0]_Experiment_set7_1.mat");
 % data = load("[0]_Experiment_set8_1.mat");
-data = load("[0]_Experiment_epsilon.mat");
-% data = load("[0]_Experiment_epsilon_3.mat");
+% data = load("[0]_Experiment_epsilon.mat");
+data = load("[0]_Experiment_epsilon_3.mat");
 
 optGap = cell2mat(data.OptGap);
 count = cell2mat(data.Count);
