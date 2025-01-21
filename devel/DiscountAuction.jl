@@ -64,16 +64,6 @@ function UpdatePayUnitList(payUnitList, plIdx, bidIdx, privatePref)
 end
 
 function RunDiscAuction(gameInfo, NashList, privateInfo, disc, interrupt, decrement)
-    ## Debugging history
-    # global offerHist = Vector{Any}(undef,termLimit)
-    # global payHist = Vector{Any}(undef,termLimit)
-    # global offerValHist = Vector{Any}(undef,termLimit)
-    # global payValHist = Vector{Any}(undef,termLimit)
-    # global priceHist = Vector{Any}(undef,termLimit)
-    # global costHist = Vector{Any}(undef,1)
-    # global choiceHist = Vector{Any}(undef,termLimit)
-    # global potentialHist = Vector{Any}(undef,termLimit)
-
     n = gameInfo.n
     privatePref = privateInfo.privatePref
     privateUnitLimit = privateInfo.privateUnitLimit
@@ -90,14 +80,6 @@ function RunDiscAuction(gameInfo, NashList, privateInfo, disc, interrupt, decrem
     global M = 100 * maximum(costList)
     global tupleList = Vector{Any}(undef,0)
     isInterrupted = false
-
-    # global offerHist[1] = deepcopy(offerList)
-    # global payHist[1] = deepcopy(payList)
-    # global costHist[1] = deepcopy(costList)
-    # global priceHist[1] = deepcopy(priceList)
-    # global payValHist[1] = deepcopy(payList)
-    # global offerValHist[1] = deepcopy(offerHist)
-    # global potentialHist[1] = deepcopy(sum(costList))
 
     #이건 저장?
     global cycleSizeTrack = Vector{Any}(undef,termLimit)
@@ -171,44 +153,10 @@ function RunDiscAuction(gameInfo, NashList, privateInfo, disc, interrupt, decrem
             end
             break
         end
-
-        # global potentialHist[count] = deepcopy(sum(priceList))
-        # global offerHist[count] = deepcopy(offerUnitList)
-        # global payHist[count] = deepcopy(payUnitList)
-        # global priceHist[count] = deepcopy(priceList)
-        # global payValHist[count] = deepcopy(payList)
-        # global offerValHist[count] = deepcopy(offerList)
-
-        # if iszero(assignList.-assignList[1]) || count == termLimit || count >= interrupt
-        #     if count == interrupt
-        #         isInterrupted = true
-        #     end
-        #     if count == termLimit
-        #         # println("[Warning] Convergence Failure [Auction] seed: $(seed),: disc: $(discount)")
-        #         break
-        #     end
-        #     break
-        # end
     end
-
-    # count = count - 1
-
-    # payHist = payHist[1:count]
+    
     global cycleSizeTrack = cycleSizeTrack[1:cycleCount]
     global activeTrack = activeTrack[1:cycleCount]
-
-    # global offerHist = offerHist[1:count]
-    # global payHist = payHist[1:count]
-    # global priceHist = priceHist[1:count]
-
-    # matwrite("Analysis/[0]HistTest.mat", Dict(
-    # "offerHist" => offerHist,
-    # "payHist" => payHist,
-    # "priceHist" => priceHist,
-    # "costHist" => costHist,
-    # "cycleSizeTrack" => cycleSizeTrack,
-    # "activeTrack" => activeTrack
-    # ); version="v7.4")
 
     if isInterrupted
         bestIdx = Int64(mode(assignList))
