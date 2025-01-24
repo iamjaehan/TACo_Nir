@@ -1,9 +1,9 @@
 
 
-function RunTACo(;n=4, seed=rand(1:10000), d=10, interrupt = Inf, γ=0.9)
+function RunRankedTACo(;n=4, seed=rand(1:10000), d=10, interrupt = Inf, γ=0.9)
     # Set game
-
     global gameInfo = SetGame(n, seed)
+    
 
     # Generate choices (Nash equilibria in this scenario)
     searchNash = SearchAllNash(gameInfo)
@@ -14,7 +14,7 @@ function RunTACo(;n=4, seed=rand(1:10000), d=10, interrupt = Inf, γ=0.9)
     privateInfo = GetPrivatePref()
 
     # Run TACo
-    global out = RunDiscAuction(gameInfo, nashSet, privateInfo, d, interrupt, γ)
+    global out = RunRankedDiscAuction(gameInfo, nashSet, privateInfo, d, interrupt, γ)
     
     # Printable result
     global costList = GetCostList(gameInfo, nashSet)
@@ -23,7 +23,6 @@ function RunTACo(;n=4, seed=rand(1:10000), d=10, interrupt = Inf, γ=0.9)
     global priceVec = out.priceVec
     
     # Display result
-    print("HELLO TACO")
 
     println("Raw Output: $(out)")
     println("Cost List: $(costList)")
