@@ -2,7 +2,7 @@ using datfm
 global increment = 1
 global topN = 1
 termLimit = 10000
-global ϵ = 10
+global ϵ = .1
 
 abstract type NextBidderProtocol end
 struct OrderTypeNextBidder <: NextBidderProtocol end
@@ -51,6 +51,8 @@ function UpdateOfferUnitList(n, offerUnitList, plIdx, bidIdx, privatePref)
         end
         # offerUnitList[plIdx,localBid] = offerUnitList[plIdx,localBid] .- discount/i
     end
+    #println("OFFER UNIT LIST", offerUnitList)
+
     return offerUnitList
 end
 
@@ -60,16 +62,20 @@ function UpdatePayUnitList(payUnitList, plIdx, bidIdx, privatePref)
         localBid = bidIdx[i]
         payUnitList[plIdx,localBid] = payUnitList[plIdx,localBid] + discount/i*(n)
     end
+    #println("Pay UNIT LIST", payUnitList)
     return payUnitList
+    
 end
 
 function RunDiscAuction(gameInfo, NashList, privateInfo, disc, interrupt, decrement)
     n = gameInfo.n
-    privatePref = privateInfo.privatePref
+    #privatePref = privateInfo.privatePref
+    privatePref = [.8, 1.2]#privateInfo.privatePref
+    #print("PRIVATE PREF", privatePref)
     privateUnitLimit = privateInfo.privateUnitLimit
     nNash = length(NashList)
     assignList = zeros(n)
-    costList = GetCostList(gameInfo, NashList)
+    costList = [10 7; 4 9]#GetCostList(gameInfo, NashList)
     offerList = zeros(n,nNash) # Choice [i] discounted by ~
     offerUnitList = zeros(n,nNash)
     payList = zeros(n,nNash) # Paid by whom[i] for the choice [j]
@@ -99,6 +105,9 @@ function RunDiscAuction(gameInfo, NashList, privateInfo, disc, interrupt, decrem
         bidder = WhoIsNext(nextBidderProtocol, n, count)    
         # Detect Cycle
         bidderProfitTuple = (bidder,round.(priceList,digits=10))
+
+        #rintln("PRICE LIST", priceList)
+
         # if count == 99 || count == 115 || count == 131 || count == 147
         #     testTuple = (bidder,round.(priceList,digits=3))
         #     println(testTuple)
@@ -136,7 +145,7 @@ function RunDiscAuction(gameInfo, NashList, privateInfo, disc, interrupt, decrem
         payList = UpdatePayList(payList, bidder, bestBidIdx, privatePref)
         payUnitList = UpdatePayUnitList(payUnitList, bidder, bestBidIdx, privatePref)
         # Update priceList
-        global priceList = costList + payList - offerList
+        global priceList = offerList - payList - costList
         # global ioUnitList = payUnitList - offerUnitList
         global ioUnitList = payUnitList
         # Assign
@@ -149,7 +158,7 @@ function RunDiscAuction(gameInfo, NashList, privateInfo, disc, interrupt, decrem
                 isInterrupted = true
             end
             if count == termLimit
-                println("[Warning] Convergence Failure [Auction] seed: $(seed),: disc: $(discount)")
+                println("[Warning] Convergence Failure [Auction] seed:,: disc: $(discount)")
             end
             break
         end

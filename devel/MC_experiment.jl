@@ -6,7 +6,7 @@ using StatsBase
 # include("World.jl")
 # include("0_GameSetup.jl")
 
-iterNum = 1000
+iterNum = 100
 n = 4
 testCaseNum = 11
 Record = Array{Any,2}(undef,testCaseNum,iterNum)

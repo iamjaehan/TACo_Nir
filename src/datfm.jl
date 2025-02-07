@@ -27,7 +27,15 @@ include("../devel/World.jl")
 export Voting, SystemOptimal, RandomDemo, SystemFair, Selfish, Auction, RunSim
 include("../devel/PrivateInfo.jl")
 export GenFakePrivatePref, GenPrivatePref, GetPrivatePref
+
+
 include("../example/TACo.jl")
 export RunTACo
+
+
+include("../example/RankedTACo.jl")
+export RunRankedTACo
+include("../devel/RankedDiscountAuction.jl")
+export RunRankedDiscAuction
 
 end # module datfm
